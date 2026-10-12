@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyclone2"
+version = "0.1.0b1"
+description = "Open-source Linux configurator for the GameSir Cyclone 2 controller (CLI + GUI)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+authors = [{ name = "Miguel Sanz" }]
+keywords = ["gamesir", "cyclone 2", "gamepad", "controller", "linux", "hidraw", "configurator"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+    "Environment :: X11 Applications",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "coverage"]
+
+[project.scripts]
+c2ctl = "cyclone2.cli:main"
+
+[project.gui-scripts]
+c2gui = "cyclone2.gui.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
