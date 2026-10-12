@@ -69,6 +69,9 @@ def test_read_pad_follows_state_stream(shared_app, fake, closing_sleep):
     finally:
         del app.pad_state
     assert [s["pressed"] for s in seen] == [{"A", "Up"}, {"B"}] and seen[0]["lt"] == 200 and seen[1]["rt"] == 50
+    end = time.time() + 2                                                   # the fake logs on its own thread
+    while not fake.commands(p.HEARTBEAT) and time.time() < end:
+        time.sleep(0.005)
     assert fake.commands(p.HEARTBEAT)                                       # sent when the connection was opened
     assert {"A", "Up", "B"} <= set(app.press_t)
     assert app.pad == {} and not app.pad_down and app._pad_fd is None       # cleared once the node went away

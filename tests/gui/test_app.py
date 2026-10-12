@@ -24,11 +24,12 @@ def test_construction_state_and_pages(app):
     assert set(app.v["keys"]) == set(app.v["turbo"]) == set(app.v["toggle"]) and "light" in app.v
 
 
-def test_startup_timers_read_the_controller(fake, monkeypatch):
-    monkeypatch.setattr(tk, "_default_root", None)   # a second Tk root must not borrow the shared app's default
-    monkeypatch.setattr(app_mod.threading, "Thread", no_thread)
-    a = app_mod.App()                                # the read timer fires 200 ms after startup
-    monkeypatch.undo()
+def test_startup_timers_read_the_controller(fake):
+    # only these two patches are temporary; undoing the test's monkeypatch would also drop the fake controller
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(tk, "_default_root", None)        # a second Tk root must not borrow the shared app's default
+        mp.setattr(app_mod.threading, "Thread", no_thread)
+        a = app_mod.App()                            # the read timer fires 200 ms after startup
     a.withdraw()
     a.tk.willdispatch()
     try:
