@@ -171,3 +171,15 @@ def test_main_restarts_once_then_exits(monkeypatch):
     monkeypatch.setattr(app_mod, "App", Stub)
     app_mod.main()
     assert len(built) == 2 and all(b.ran for b in built)
+
+
+def test_footer_selector_left_of_backup_switches_language(monkeypatch):
+    a = make_app(monkeypatch)
+    foot = a.status.master
+    order = [getattr(w, "text", None) for w in foot.pack_slaves()]
+    assert order[:4] == ["Recarregar", "Restaurar backup", "Backup", "Português (Brasil)  ▾"]   # packed right to left
+    sel = foot.pack_slaves()[3]
+    sel.menu.invoke(1)
+    assert a.lang_pick.get() == "en" and a.restart is True
+    a.update()
+    assert app_mod.load_settings() == {"lang": "en"}
