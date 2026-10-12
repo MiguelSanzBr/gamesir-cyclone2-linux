@@ -6,6 +6,7 @@ from . import theme
 from .drawing import gradient_fill, mix, rounded, rr_points, set_color, smooth_outline
 from .geometry import (BEHIND, BODY, CALLOUTS, DPAD_CENTER, DPAD_RING, HEIGHT, HOME_OFFSET, PARTS, PLAYER_COLORS,
                        PLAYER_LEDS, ROLES, STICK_WELLS, TOP, WIDTH, ZONE_SHAPES)
+from .i18n import _
 from .theme import ACCENT, BG, BODY_FILL, FG, SEL_FILL, SKINS
 
 SECTION_TARGETS = ("sticks", "leds")      # callout targets that open a page instead of selecting a button
@@ -135,15 +136,16 @@ class ControllerView:
         """Labels around the home drawing, linked to their part; clicking one opens its page."""
         s = self.s
         for text, side, y, (tx, ty), target in CALLOUTS:
+            label = _(text)                                  # the tag below keeps the Portuguese text
             f = tkfont.Font(root=c, font=theme.font(9, "bold"))
-            w, h = f.measure(text) / s + 26, 22
+            w, h = f.measure(label) / s + 26, 22
             x1 = 6 if side == "l" else 2 * ox + WIDTH - 6 - w
             x2, edge = x1 + w, (x1 + w if side == "l" else x1)
             y, ty = y + TOP, ty + TOP
             tag = "co:" + text.replace(" ", "_")             # Tk splits a tag string at spaces
             rounded(c, x1 * s, (y - h / 2) * s, x2 * s, (y + h / 2) * s, h / 2 * s, fill=theme.CALLOUT_FILL,
                     outline=theme.CALLOUT_LINE, width=max(1, round(1.5 * s)), tags=tag)
-            c.create_text((x1 + w / 2) * s, y * s, text=text, fill=FG, font=theme.font(9, "bold"), tags=tag)
+            c.create_text((x1 + w / 2) * s, y * s, text=label, fill=FG, font=theme.font(9, "bold"), tags=tag)
             px, py = (tx + ox) * s, ty * s
             mx = (edge + (14 if side == "l" else -14)) * s
             c.create_line(edge * s, y * s, mx, y * s, px, py, fill=theme.CALLOUT_LINE, width=max(1, round(1.5 * s)))
@@ -257,8 +259,9 @@ class ControllerView:
         v = self.v
         self._remapped = {b for b in v["keys"] if v["keys"][b].get() or v["turbo"][b].get() or v["toggle"][b].get()}
         cur = v["keys"][self.sel_btn].get()
-        self.map_title.configure(text=f"Botão {self.sel_btn}")
-        self.map_sub.configure(text=f"função atual: {cur.replace('+', ' + ') if cur else 'padrão (' + self.sel_btn + ')'}")
+        self.map_title.configure(text=_("Botão {}").format(self.sel_btn))
+        self.map_sub.configure(text=_("função atual: {}").format(
+            cur.replace("+", " + ") if cur else _("padrão ({})").format(self.sel_btn)))
         now = time.time()
         for c, (parts, mode) in self.ctrl.items():
             self.style(c, parts, mode, now)

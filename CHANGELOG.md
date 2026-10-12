@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+* `c2gui`: the interface is available in English and Brazilian Portuguese. It follows the system language and can
+  be changed on the Profile page.
+
 ## 0.1.0-beta.1 — 2026-10-12
 
 First public beta.

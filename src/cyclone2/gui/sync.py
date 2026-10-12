@@ -6,6 +6,7 @@ from tkinter import filedialog, messagebox
 from .. import cli, device, light, profile
 from .. import protocol as p
 from . import theme
+from .i18n import _
 from .theme import ACCENT, DANGER, MUTED
 
 
@@ -15,7 +16,7 @@ class DeviceSync:
         self.status.configure(text=text, fg=DANGER if error else MUTED)
 
     def set_connected(self, text):
-        self.pill.configure(text=f"●  {text}" if text else "○  controle não encontrado", fg=ACCENT if text else MUTED)
+        self.pill.configure(text=f"●  {text}" if text else "○  " + _("controle não encontrado"), fg=ACCENT if text else MUTED)
 
     # ------------------------------------------------------------ worker
     def run(self, label, job, done, quiet=False):
@@ -41,7 +42,7 @@ class DeviceSync:
                     cb = lambda: self.set_connected(None)
                 else:
                     cb = lambda: (self.set_status(msg, True), self.set_connected(None),
-                                  messagebox.showerror("Erro", msg, parent=self))
+                                  messagebox.showerror(_("Erro"), msg, parent=self))
             finally:
                 if dev:
                     dev.close()
@@ -63,14 +64,14 @@ class DeviceSync:
             path, pid, (fw, dongle), n, data, ldata, st = r
             self.show_profile(n, data)
             self.lbase, self.lights = ldata, light.decode(ldata)
-            self.conn_text = f"Conectado · {p.PIDS.get(pid, hex(pid))} · firmware {fw}"
+            self.conn_text = _("Conectado · {} · firmware {}").format(p.PIDS.get(pid, hex(pid)), fw)
             self.set_connected(self.conn_text)
-            battery = f"\nBateria: {st['battery']}%" if st else ""
-            self.info_label.configure(text=f"Dispositivo: {path}\nFirmware: {fw}" + (f" · dongle {dongle}" if dongle else "")
+            battery = "\n" + _("Bateria: {}%").format(st["battery"]) if st else ""
+            self.info_label.configure(text=_("Dispositivo: {}\nFirmware: {}").format(path, fw) + (f" · dongle {dongle}" if dongle else "")
                                       + battery)
             self.load()
-            self.set_status("Configuração lida do controle. As mudanças são salvas automaticamente.")
-        self.run("Lendo do controle…", job, done)
+            self.set_status(_("Configuração lida do controle. As mudanças são salvas automaticamente."))
+        self.run(_("Lendo do controle…"), job, done)
 
     def show_profile(self, n, data):
         self.active, self.base, self.doc = n, data, profile.decode(data)
@@ -96,8 +97,8 @@ class DeviceSync:
             self._saved(*pending)
             self.show_profile(n, data)
             self.load()
-            self.set_status(f"Perfil {n} ativo.")
-        self.run(f"Trocando para o perfil {n}…", job, done)
+            self.set_status(_("Perfil {} ativo.").format(n))
+        self.run(_("Trocando para o perfil {}…").format(n), job, done)
 
     # ------------------------------------------------------------ auto-save
     def changed(self, var=None):
@@ -107,7 +108,7 @@ class DeviceSync:
         if self._save_job:
             self.after_cancel(self._save_job)
         self._save_job = self.after(theme.AUTOSAVE_MS, self.autosave)
-        self.set_status("Alterações pendentes…")
+        self.set_status(_("Alterações pendentes…"))
 
     def _pending(self):
         """What to write: ``(profile number, new bytes, changed span, new lighting bytes, its span)``."""
@@ -121,13 +122,13 @@ class DeviceSync:
             if sp:
                 dev.write_profile(rec, data, *sp)
                 if dev.read_profile(rec)[sp[0]:sp[1]] != data[sp[0]:sp[1]]:
-                    raise IOError("verificação falhou: o controle não guardou o que foi enviado")
+                    raise IOError(_("verificação falhou: o controle não guardou o que foi enviado"))
 
     def _saved(self, n, new, span, lnew, lspan):
         self.base, self.lbase = new, lnew
         size = sum(sp[1] - sp[0] for sp in (span, lspan) if sp)
         if size:
-            self.set_status(f"✓ Salvo no controle ({size} bytes).")
+            self.set_status(_("✓ Salvo no controle ({} bytes).").format(size))
 
     def autosave(self):
         """Write only the changed byte ranges of the profile and the lighting, then verify them."""
@@ -140,7 +141,7 @@ class DeviceSync:
         if not pending[2] and not pending[4]:
             self.set_status("")
             return
-        self.run("Salvando no controle…", lambda dev: self._write(dev, *pending), lambda _: self._saved(*pending))
+        self.run(_("Salvando no controle…"), lambda dev: self._write(dev, *pending), lambda _: self._saved(*pending))
 
     # ------------------------------------------------------------ live state
     def poll(self):
@@ -157,7 +158,7 @@ class DeviceSync:
                 if data is not None:
                     self.show_profile(n, data)
                     self.load()
-                    self.set_status(f"O controle mudou para o perfil {n}.")
+                    self.set_status(_("O controle mudou para o perfil {}.").format(n))
             self.run("", job, done, quiet=True)
         self.after(theme.POLL_MS, self.poll)
 
@@ -166,7 +167,7 @@ class DeviceSync:
             dev.vibrate(160, 160)
             time.sleep(1)
             dev.vibrate(0, 0)
-        self.run("Vibrando…", job, lambda _: self.set_status("✓ Teste de vibração concluído."))
+        self.run(_("Vibrando…"), job, lambda r: self.set_status(_("✓ Teste de vibração concluído.")))
 
     # ------------------------------------------------------------ backups
     def backup(self):
@@ -176,7 +177,7 @@ class DeviceSync:
             def job(dev):
                 with open(path, "wb") as f:
                     f.write(b"".join(dev.read_profile(n) for n in cli.RECORDS))
-            self.run("Fazendo backup…", job, lambda r: self.set_status(f"Backup salvo em {path}"))
+            self.run(_("Fazendo backup…"), job, lambda r: self.set_status(_("Backup salvo em {}").format(path)))
 
     def restore(self):
         path = filedialog.askopenfilename(parent=self, filetypes=[("Backup", "*.bin")])
@@ -185,9 +186,10 @@ class DeviceSync:
         with open(path, "rb") as f:
             data = f.read()
         if len(data) != cli.BACKUP_SIZE:
-            return messagebox.showerror("Erro", f"Arquivo inválido ({len(data)} bytes, esperado {cli.BACKUP_SIZE}).",
-                                        parent=self)
-        if not messagebox.askyesno("Restaurar", "Substituir todos os perfis e as luzes por este backup?", parent=self):
+            return messagebox.showerror(_("Erro"), _("Arquivo inválido ({} bytes, esperado {}).").format(
+                len(data), cli.BACKUP_SIZE), parent=self)
+        if not messagebox.askyesno(_("Restaurar"), _("Substituir todos os perfis e as luzes por este backup?"),
+                                  parent=self):
             return
 
         def job(dev):
@@ -197,9 +199,9 @@ class DeviceSync:
                 off += len(rec)
                 dev.write_profile(n, rec)
                 if dev.read_profile(n) != rec:
-                    raise IOError("verificação falhou")
+                    raise IOError(_("verificação falhou"))
 
-        def done(_):
-            self.set_status("Backup restaurado e verificado.")
+        def done(r):
+            self.set_status(_("Backup restaurado e verificado."))
             self.read_device()
-        self.run("Restaurando…", job, done)
+        self.run(_("Restaurando…"), job, done)

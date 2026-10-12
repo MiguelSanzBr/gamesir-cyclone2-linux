@@ -13,7 +13,7 @@ import pytest
 
 from cyclone2 import device, discovery, light, profile
 from cyclone2 import protocol as p
-from cyclone2.gui import app as app_mod, sync, theme
+from cyclone2.gui import app as app_mod, i18n, sync, theme
 from fake_device import FIXTURE
 
 BACKUP = open(FIXTURE, "rb").read()
@@ -130,6 +130,8 @@ def isolated(monkeypatch, tmp_path):
     monkeypatch.setattr(discovery, "find_devices", lambda: iter([]))    # FakeController.install() overrides this
     monkeypatch.setattr(discovery, "SYS", str(tmp_path / "no-sys"))     # even the real find_devices sees nothing
     monkeypatch.setattr(app_mod, "SETTINGS", str(tmp_path / "cfg" / "gui.json"))
+    monkeypatch.setattr(i18n, "LANG", "pt")                             # the existing tests assert Portuguese texts
+    monkeypatch.setattr(i18n, "system_lang", lambda env=None: "pt")     # ... whatever the locale of the machine is
     d = SimpleNamespace(save="", open="", yes=True, errors=[], asked=[])
     monkeypatch.setattr(sync.filedialog, "asksaveasfilename", lambda **kw: d.save)
     monkeypatch.setattr(sync.filedialog, "askopenfilename", lambda **kw: d.open)
@@ -157,6 +159,7 @@ def shared_app():
         mp.setattr(theme, "POLL_MS", 10 ** 7)
         mp.setattr(theme, "FRAME_MS", 10 ** 7)
         mp.setattr(app_mod, "SETTINGS", os.devnull + "/gui.json")       # unwritable: never touches the real home
+        mp.setattr(i18n, "system_lang", lambda env=None: "pt")
         a = app_mod.App()
     a.withdraw()
     a.tk.willdispatch()             # worker thread may call app.after without a running mainloop()

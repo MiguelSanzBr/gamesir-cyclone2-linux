@@ -84,7 +84,9 @@ c2gui
 - **Lights**: choose an animation or a preset, select a frame, click a light zone (on the drawing or in the
   list) and use the colour wheel. While you are on this page the controller holds the frame being edited.
 - **Profile**: name, d-pad and ABXY options, sleep timer, and the drawing colour (black, white or pink).
-- Changes are saved automatically. **Backup / Restaurar backup** save and restore everything.
+- Changes are saved automatically. **Backup / Restore backup** save and restore everything.
+- The interface is available in English and Brazilian Portuguese. It follows the system language and can be
+  changed on the **Profile** page (the window restarts).
 
 ### Command line
 
@@ -164,5 +166,7 @@ botões e de luzes com roda de cores.
 - **Instalar**: baixe o `.deb` em [Releases](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases) e rode
   `sudo apt install ./cyclone2_*_all.deb`. Depois reconecte o controle. O app aparece no menu como "GameSir Cyclone 2".
 - **Usar**: `c2gui`. As mudanças são salvas sozinhas. Escolher um perfil no topo também o ativa no controle.
+- **Idioma**: a interface existe em português (Brasil) e inglês, segue o idioma do sistema e pode ser trocada na
+  página **Perfil** (a janela reinicia).
 - **Backup**: `c2ctl backup arquivo.bin` / `c2ctl restore arquivo.bin`.
 - Sem vínculo com a GameSir. O protocolo foi obtido por engenharia reversa para interoperabilidade.

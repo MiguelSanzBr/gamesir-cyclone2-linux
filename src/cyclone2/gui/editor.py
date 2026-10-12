@@ -4,6 +4,7 @@ from .. import light, profile
 from . import theme
 from .catalog import BUTTONS, MOTOR_LEVELS, ZONES
 from .drawing import mix
+from .i18n import _
 from .theme import ACCENT, BG, FG, SKINS, TILE_HI
 from .widgets import Pill
 
@@ -142,7 +143,7 @@ class Editor:
             w.destroy()
         for i in range(max(self.animation()["frames"], 1)):
             on = i == self.frame
-            Pill(bar, f"Quadro {i + 1}", s, cmd=lambda i=i: self.select_frame(i), font=theme.font(9), radius=10,
+            Pill(bar, _("Quadro {}").format(i + 1), s, cmd=lambda i=i: self.select_frame(i), font=theme.font(9), radius=10,
                  padx=8, pady=4, fill=ACCENT if on else TILE_HI, fg=BG if on else FG).pack(side="left", padx=int(2 * s))
         colors = self.animation()["colors"][self.frame]
         for key, cell in self.zone_cells.items():
@@ -150,8 +151,8 @@ class Editor:
             cell.set(fill=theme.LINE if key == self.zone else TILE_HI, fg=ACCENT if key == self.zone else FG)
         self.picker.set(colors["home" if self.zone == "all" else self.zone])
         zones = SKINS[self.skin]["zones"]
-        self.leds_hint.configure(text="Prévia ao vivo das luzes. Clique numa luz do desenho para pintá-la.\n" + (
-            "Este modelo acende só as barras das empunhaduras." if len(zones) < len(ZONES) else ""))
+        self.leds_hint.configure(text=_("Prévia ao vivo das luzes. Clique numa luz do desenho para pintá-la.") + "\n" + (
+            _("Este modelo acende só as barras das empunhaduras.") if len(zones) < len(ZONES) else ""))
 
     def select_frame(self, i):
         self.frame = i
@@ -211,4 +212,4 @@ class Editor:
             self.doc["name"] = name
             self.load()
             self.changed()
-            self.set_status("Padrões do app restaurados neste perfil.")
+            self.set_status(_("Padrões do app restaurados neste perfil."))

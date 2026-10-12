@@ -7,10 +7,11 @@ import tkinter.font as tkfont
 from tkinter import ttk
 
 from .. import keys
-from . import theme
+from . import i18n, theme
 from .catalog import BUTTONS, MOTION, SECTIONS
 from .controller import ControllerView
 from .editor import Editor
+from .i18n import LANGS, _
 from .live_input import PadInput
 from .pages import Pages
 from .sync import DeviceSync
@@ -42,6 +43,9 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
 
     def __init__(self):
         super().__init__()
+        saved = load_settings().get("lang")
+        i18n.LANG = saved if saved in LANGS else i18n.system_lang()
+        self.restart = False               # set when the language changes: main() builds a new window
         self.title("GameSir Cyclone 2 — Linux")
         self.configure(bg=BG)
         theme.FAMILY = theme.pick_family(self)
@@ -80,6 +84,8 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
 
     def destroy(self):
         self._closing = True
+        for job in self.tk.splitlist(self.tk.call("after", "info")):   # timers would outlive the window
+            self.after_cancel(job)
         super().destroy()
 
     font = staticmethod(theme.font)
@@ -106,6 +112,7 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
         }
         self.preset_choice = V()
         self.skin_choice = V(value=self.skin)
+        self.lang_choice = V(value=i18n.LANG)
 
     def _watch(self):
         """Every setting change schedules an automatic save (the official app also applies changes at once)."""
@@ -122,14 +129,14 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
         head = tk.Frame(self, bg=BG)
         head.pack(fill="x", padx=int(24 * s), pady=(int(16 * s), 0))
         tk.Label(head, text="GameSir Connect · Linux", bg=BG, fg=MUTED, font=theme.font(9)).pack(side="left")
-        self.profile_btns = [Pill(head, f"Perfil {i}  ●", s, cmd=lambda i=i: self.select_profile(i), fill=BG, fg=MUTED,
-                                  hover=TILE, padx=14, pady=6) for i in range(1, 5)]
+        self.profile_btns = [Pill(head, _("Perfil {}").format(i) + "  ●", s, cmd=lambda i=i: self.select_profile(i),
+                                  fill=BG, fg=MUTED, hover=TILE, padx=14, pady=6) for i in range(1, 5)]
         for b in reversed(self.profile_btns):
             b.pack(side="right", padx=2)
 
         foot = tk.Frame(self, bg=BG)
         foot.pack(side="bottom", fill="x", padx=int(24 * s), pady=int(14 * s))
-        for text, cmd in (("Recarregar", self.read_device), ("Restaurar backup", self.restore), ("Backup", self.backup)):
+        for text, cmd in ((_("Recarregar"), self.read_device), (_("Restaurar backup"), self.restore), ("Backup", self.backup)):
             self.button(foot, text, cmd).pack(side="right", padx=int(4 * s))
         self.status = tk.Label(foot, text="", bg=BG, fg=MUTED, anchor="w", font=theme.font(9))
         self.status.pack(side="left", fill="x", expand=True)
@@ -143,9 +150,10 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
             page = tk.Frame(body, bg=BG)
             top = tk.Frame(page, bg=BG, height=int(46 * s))
             top.pack(fill="x", padx=int(24 * s), pady=(int(10 * s), int(6 * s)))
-            back = Pill(top, "‹  Início", s, cmd=lambda: self.show("home"), fill=BG, fg=MUTED, hover=TILE, padx=12, pady=6)
+            back = Pill(top, _("‹  Início"), s, cmd=lambda: self.show("home"), fill=BG, fg=MUTED, hover=TILE, padx=12,
+                        pady=6)
             back.place(relx=0, rely=.5, anchor="w")
-            tk.Label(top, text=title, bg=BG, fg=FG, font=theme.font(17)).place(relx=.5, rely=.5, anchor="center")
+            tk.Label(top, text=_(title), bg=BG, fg=FG, font=theme.font(17)).place(relx=.5, rely=.5, anchor="center")
             inner = tk.Frame(page, bg=BG)
             inner.pack(fill="both", expand=True, padx=int(24 * s), pady=int(8 * s))
             builders[key](inner)
@@ -156,6 +164,7 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
         self.v["light"]["anim"].trace_add("write", lambda *_: self.lights and not self._loading and self.load_animation())
         self.preset_choice.trace_add("write", lambda *_: self.apply_preset(self.preset_choice.get()))
         self.skin_choice.trace_add("write", lambda *_: self.change_skin(self.skin_choice.get()))
+        self.lang_choice.trace_add("write", lambda *_: self.change_lang(self.lang_choice.get()))
         self._watch()
         self.refresh_profiles()
         self.show("home")
@@ -173,5 +182,17 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
                 self.refresh_frames()
 
 
+    def change_lang(self, code):
+        """Save the language and close this window; :func:`main` opens a new one (device state is re-read)."""
+        if code != i18n.LANG:
+            save_settings({**load_settings(), "lang": code})
+            self.restart = True
+            self.after_idle(self.destroy)       # let the chip traces of this change finish first
+
+
 def main():
-    App().mainloop()
+    while True:
+        app = App()
+        app.mainloop()
+        if not getattr(app, "restart", False):
+            break
