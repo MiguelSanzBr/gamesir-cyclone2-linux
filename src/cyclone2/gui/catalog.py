@@ -7,7 +7,7 @@ SECTIONS = [("Botões", "buttons"), ("Analógicos", "sticks"), ("Gatilhos", "tri
 # every button the drawing shows and the profile stores
 BUTTONS = keys.BUTTONS + keys.PADDLES + keys.TRIGGERS
 # remap choices: "" keeps the button's own function; "None" disables it
-# keyboard shortcuts ("+" joins up to 3 keys sent together): Ctrl+2 opens Steam's right-hand quick access menu
+# combination ("+" joins up to 3 keys sent together): Ctrl+2 opens Steam's right-hand quick access menu
 SHORTCUTS = [("KB_LCTRL+KB_2", "Menu rápido Steam")]
 TARGETS = ([("", "Padrão")] + [(k, k) for k in keys.TARGETS if k != "None"] + SHORTCUTS
            + [("None", "Desativar")])

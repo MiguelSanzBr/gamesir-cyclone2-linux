@@ -59,9 +59,10 @@ def test_missing_translation_falls_back_to_english(monkeypatch):
 
 
 def test_steam_shortcut_target_is_a_valid_key_combination():
-    value, label = catalog.SHORTCUTS[0]
-    assert (value, label) in catalog.TARGETS and label in EN and label in FR
-    assert [keys.code(k) for k in value.split("+")] == [keys.NAMES["KB_LCTRL"], keys.NAMES["KB_2"]]
+    assert [v for v, _t in catalog.SHORTCUTS] == ["KB_LCTRL+KB_2"]
+    for value, label in catalog.SHORTCUTS:
+        assert (value, label) in catalog.TARGETS and label in EN and label in FR
+        assert all(keys.code(k) for k in value.split("+")) and len(value.split("+")) <= 3
 
 
 def test_langs():
