@@ -23,6 +23,8 @@ jobs:
           cp -r packaging/appimage recipe
           echo "$PWD/$(ls dist/*.whl)" > recipe/requirements.txt
       - name: Build the AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"   # appimagetool is itself an AppImage and the runner has no FUSE
         run: python-appimage build app -p "${{ inputs.python }}" recipe
       - uses: actions/upload-artifact@v4
         with:
