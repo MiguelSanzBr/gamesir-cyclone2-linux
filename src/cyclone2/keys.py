@@ -29,9 +29,10 @@ NONE = 255
 BUTTONS = ["Up", "Down", "Left", "Right", "LB", "RB", "LS", "RS", "A", "B", "X", "Y", "Home", "View", "Menu", "Capture"]
 PADDLES = ["L4", "R4"]
 TRIGGERS = ["LT", "RT"]
-# what a button can be remapped to in the app (``MappingList``)
+# what a button can be remapped to in the app (``MappingList``), plus "Home" (the Xbox/Guide button, which Steam
+# reads as the Steam button)
 TARGETS = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right", "LB", "RB", "LT", "RT", "LS", "RS", "View", "Menu",
-           "Capture", "Mute", "Shift", "None"]
+           "Capture", "Home", "Mute", "Shift", "None"]
 
 
 def name(code):

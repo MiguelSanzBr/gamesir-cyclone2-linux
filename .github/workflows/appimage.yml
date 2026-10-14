@@ -1,0 +1,31 @@
+name: appimage
+
+# Manual only: Actions tab > appimage > Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      python:
+        description: Python version bundled in the AppImage
+        default: "3.12"
+
+jobs:
+  appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the wheel and the recipe
+        run: |
+          pip install build python-appimage
+          python -m build --wheel
+          cp -r packaging/appimage recipe
+          echo "$PWD/$(ls dist/*.whl)" > recipe/requirements.txt
+      - name: Build the AppImage
+        run: python-appimage build app -p "${{ inputs.python }}" recipe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cyclone2-appimage
+          path: "*.AppImage"
+          if-no-files-found: error

@@ -1,25 +1,29 @@
-"""Interface language: Portuguese source strings are the keys, :data:`EN` holds the English text.
+"""Interface language: Portuguese source strings are the keys, :data:`EN` and :data:`FR` hold the translations.
 
 Only the GUI is translated. ``LANG`` is set once by the app at startup (and the window is rebuilt when it changes),
 so ``_()`` is evaluated when a widget is built, never at import time.
 """
 import os
 
-LANGS = {"pt": "Português (Brasil)", "en": "English"}
+LANGS = {"pt": "Português (Brasil)", "en": "English", "fr": "Français"}
 LANG = "pt"
 
 
 def system_lang(env=os.environ):
-    """``"pt"`` when the first locale variable that is set (LANGUAGE, LC_ALL, LC_MESSAGES, LANG) is Portuguese."""
+    """Language of the first locale variable that is set (LANGUAGE, LC_ALL, LC_MESSAGES, LANG): ``"pt"``, ``"fr"``
+    or ``"en"`` (also the fallback for any other language)."""
     for name in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
         value = env.get(name, "").split(":")[0]
         if value:
-            return "pt" if value.startswith("pt") else "en"
+            return next((code for code in ("pt", "fr") if value.startswith(code)), "en")
     return "en"
 
 
 def _(text):
-    return EN.get(text, text) if LANG == "en" else text
+    """Translation of ``text``; a language without that entry falls back to English, never to the Portuguese source."""
+    if LANG == "pt":
+        return text
+    return TABLES.get(LANG, EN).get(text) or EN.get(text, text)
 
 
 EN = {
@@ -28,7 +32,8 @@ EN = {
     "Giroscópio": "Gyro", "Luzes": "Lights", "Perfil": "Profile", "‹  Início": "‹  Home",
     "Perfil {}": "Profile {}", "Recarregar": "Reload", "Restaurar backup": "Restore backup",
     # catalog: remap targets, gyro, LED zones, presets, standby
-    "Padrão": "Default", "Desativar": "Disable", "Desligado": "Off", "Segurar botão": "Hold button",
+    "Padrão": "Default", "Desativar": "Disable", "Menu rápido Steam": "Steam quick menu",
+    "Desligado": "Off", "Segurar botão": "Hold button",
     "Apertar liga/desliga": "Press to toggle", "Sempre ligado": "Always on", "Analógico esq.": "Left stick",
     "Analógico dir.": "Right stick", "Mira": "Aim", "Inclinação": "Tilt", "Empunhadura esq.": "Left grip",
     "Empunhadura dir.": "Right grip", "Anel esquerdo": "Left ring", "Anel direito": "Right ring",
@@ -102,3 +107,132 @@ EN = {
     "verificação falhou": "verification failed", "Backup restaurado e verificado.": "Backup restored and verified.",
     "Restaurando…": "Restoring…",
 }
+
+FR = {
+    'Botões': 'Boutons',
+    'Analógicos': 'Joysticks',
+    'Gatilhos': 'Gâchettes',
+    'Vibração': 'Vibration',
+    'Giroscópio': 'Gyroscope',
+    'Luzes': 'Lumières',
+    'Perfil': 'Profil',
+    '‹  Início': '‹  Accueil',
+    'Perfil {}': 'Profil {}',
+    'Recarregar': 'Recharger',
+    'Restaurar backup': 'Restaurer la sauvegarde',
+    'Padrão': 'Par défaut',
+    'Desativar': 'Désactiver',
+    'Menu rápido Steam': 'Menu rapide Steam',
+    'Desligado': 'Désactivé',
+    'Segurar botão': 'Maintenir le bouton',
+    'Apertar liga/desliga': 'Appuyer pour activer/désactiver',
+    'Sempre ligado': 'Toujours activé',
+    'Analógico esq.': 'Joystick gauche',
+    'Analógico dir.': 'Joystick droit',
+    'Mira': 'Visée',
+    'Inclinação': 'Inclinaison',
+    'Empunhadura esq.': 'Poignée gauche',
+    'Empunhadura dir.': 'Poignée droite',
+    'Anel esquerdo': 'Anneau gauche',
+    'Anel direito': 'Anneau droit',
+    'Fluxo': 'Flux',
+    'Arco-íris': 'Arc-en-ciel',
+    'Pulso': 'Pulsation',
+    'Duelo': 'Duel',
+    'Alarme': 'Alarme',
+    'Nunca': 'Jamais',
+    'Preto': 'Noir',
+    'Branco': 'Blanc',
+    'Rosa': 'Rose',
+    'Analógico esquerdo': 'Joystick gauche',
+    'Analógico direito': 'Joystick droit',
+    'Botões ABXY': 'Boutons ABXY',
+    'Traseiros L4 / R4': 'Palettes L4 / R4',
+    'Aperte os botões do controle: eles acendem aqui.': "Appuyez sur les boutons de la manette : ils s'allument ici.",
+    'procurando controle…': 'recherche de la manette…',
+    'Perfil ativo no controle: {}': 'Profil actif sur la manette : {}',
+    'Clique num botão do controle para escolher a função dele.\nL4/R4: botões traseiros · ● verde: botão personalizado.': 'Cliquez sur un bouton de la manette pour choisir sa fonction.\nL4/R4 : boutons arrière · ● vert : bouton personnalisé.',
+    'Turbo (disparo automático)': 'Turbo (tir automatique)',
+    'Disparo contínuo (aperta uma vez, segura)': 'Bascule (appuyer une fois pour maintenir)',
+    'Restaurar todos os botões': 'Réinitialiser tous les boutons',
+    'Botão {}': 'Bouton {}',
+    'função atual: {}': 'fonction actuelle : {}',
+    'padrão ({})': 'par défaut ({})',
+    'Zona morta interna': 'Zone morte intérieure',
+    'Zona morta externa (alcance máximo)': 'Zone morte extérieure (portée maximale)',
+    'Anti-zona morta': 'Anti-zone morte',
+    'Inverter eixo X': "Inverser l'axe X",
+    'Inverter eixo Y': "Inverser l'axe Y",
+    'Saída bruta (ignora zona morta e curva)': 'Sortie brute (ignore la zone morte et la courbe)',
+    'A zona morta e a curva seguem o modelo do app: os pontos da curva são recalculados quando a zona morta muda.': "La zone morte et la courbe suivent le modèle de l'appli : les points de la courbe sont recalculés quand la zone morte change.",
+    'Gatilho LT': 'Gâchette LT',
+    'Gatilho RT': 'Gâchette RT',
+    'Início (zona morta)': 'Début (zone morte)',
+    'Fim (pressão total)': 'Fin (appui complet)',
+    'Gatilho rápido (hair trigger)': 'Gâchette rapide (hair trigger)',
+    'Adaptativo': 'Adaptatif',
+    'Fixo': 'Fixe',
+    'Faixa: início': 'Plage : début',
+    'Faixa: fim': 'Plage : fin',
+    'Motores das empunhaduras': 'Moteurs des poignées',
+    'Motor esquerdo': 'Moteur gauche',
+    'Motor direito': 'Moteur droit',
+    'Motores dos gatilhos': 'Moteurs des gâchettes',
+    'Teste': 'Test',
+    'Vibrar por 1 segundo': 'Vibrer pendant 1 seconde',
+    'Ativação': 'Activation',
+    'Botão de ativação': "Bouton d'activation",
+    'Movimento vira': 'Le mouvement pilote',
+    'Zona morta': 'Zone morte',
+    'Proporção X/Y': 'Ratio X/Y',
+    'Animação': 'Animation',
+    'Animação {}': 'Animation {}',
+    'Efeitos prontos': 'Effets prédéfinis',
+    'Quadro {}': 'Image {}',
+    'Cor': 'Couleur',
+    'Todas': 'Toutes',
+    'Brilho e velocidade': 'Luminosité et vitesse',
+    'Brilho': 'Luminosité',
+    'Velocidade': 'Vitesse',
+    'Recentes': 'Récentes',
+    'Prévia ao vivo das luzes. Clique numa luz do desenho para pintá-la.': 'Aperçu en direct des lumières. Cliquez sur une lumière du dessin pour la peindre.',
+    'Este modelo acende só as barras das empunhaduras.': "Ce modèle n'allume que les barres des poignées.",
+    'Perfil selecionado': 'Profil sélectionné',
+    'Nome': 'Nom',
+    'Travar diagonais do D-pad': 'Verrouiller les diagonales du D-pad',
+    'Trocar A/B e X/Y no modo XInput': 'Échanger A/B et X/Y en mode XInput',
+    'Trocar A/B e X/Y no modo Switch': 'Échanger A/B et X/Y en mode Switch',
+    'Restaurar padrões deste perfil': 'Réinitialiser les valeurs par défaut de ce profil',
+    'Controle': 'Manette',
+    'Desligar as luzes sem uso após': 'Éteindre les lumières inutilisées après',
+    'Acordar ao levantar o controle': 'Réveiller en soulevant la manette',
+    'Cor do desenho': 'Couleur du dessin',
+    'Idioma da interface': "Langue de l'interface",
+    'Padrões do app restaurados neste perfil.': "Valeurs par défaut de l'appli restaurées sur ce profil.",
+    'controle não encontrado': 'manette introuvable',
+    'Erro': 'Erreur',
+    'Conectado · {} · firmware {}': 'Connecté · {} · firmware {}',
+    'Bateria: {}%': 'Batterie : {} %',
+    'Dispositivo: {}\nFirmware: {}': 'Appareil : {}\nFirmware : {}',
+    'Configuração lida do controle. As mudanças são salvas automaticamente.': 'Configuration lue depuis la manette. Les modifications sont enregistrées automatiquement.',
+    'Lendo do controle…': 'Lecture depuis la manette…',
+    'Perfil {} ativo.': 'Profil {} actif.',
+    'Trocando para o perfil {}…': 'Passage au profil {}…',
+    'Alterações pendentes…': 'Modifications en attente…',
+    'verificação falhou: o controle não guardou o que foi enviado': "échec de la vérification : la manette n'a pas conservé ce qui a été envoyé",
+    '✓ Salvo no controle ({} bytes).': '✓ Enregistré sur la manette ({} octets).',
+    'Salvando no controle…': 'Enregistrement sur la manette…',
+    'O controle mudou para o perfil {}.': 'La manette est passée au profil {}.',
+    'Vibrando…': 'Vibration en cours…',
+    '✓ Teste de vibração concluído.': '✓ Test de vibration terminé.',
+    'Fazendo backup…': 'Sauvegarde en cours…',
+    'Backup salvo em {}': 'Sauvegarde enregistrée dans {}',
+    'Arquivo inválido ({} bytes, esperado {}).': 'Fichier invalide ({} octets, {} attendus).',
+    'Restaurar': 'Restaurer',
+    'Substituir todos os perfis e as luzes por este backup?': 'Remplacer tous les profils et les lumières par cette sauvegarde ?',
+    'verificação falhou': 'échec de la vérification',
+    'Backup restaurado e verificado.': 'Sauvegarde restaurée et vérifiée.',
+    'Restaurando…': 'Restauration…',
+}
+
+TABLES = {"en": EN, "fr": FR}
