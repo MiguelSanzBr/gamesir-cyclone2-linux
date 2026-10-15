@@ -4,8 +4,8 @@ import tkinter.font as tkfont
 
 from . import theme
 from .drawing import gradient_fill, mix, rounded, rr_points, set_color, smooth_outline
-from .geometry import (BEHIND, BODY, CALLOUTS, DPAD_CENTER, DPAD_RING, HEIGHT, HOME_OFFSET, PARTS, PLAYER_COLORS,
-                       PLAYER_LEDS, ROLES, STICK_WELLS, TOP, WIDTH, ZONE_SHAPES)
+from .geometry import (BEHIND, BODY, CALLOUTS, DPAD_ARM, DPAD_CENTER, DPAD_CROSS, DPAD_RING, HEIGHT, HOME_OFFSET,
+                       PARTS, PLAYER_COLORS, PLAYER_LEDS, ROLES, STICK_WELLS, TOP, WIDTH, ZONE_SHAPES)
 from .i18n import _
 from .theme import ACCENT, BG, BODY_FILL, FG, SEL_FILL, SKINS
 from .widgets import hand
@@ -42,6 +42,8 @@ class ControllerView:
             shape, xy, label = PARTS[name]
             tag = f"b:{name}"
             base = sk[ROLES.get(name, "btn")]
+            if ROLES.get(name) == "dpad":                   # arms without seams: the cross drawn over them is the edge
+                base = (base[0], "", base[2])
             pts = None
             if shape == "circle":
                 x, y, r = xy
@@ -97,7 +99,10 @@ class ControllerView:
         dx0, dy0 = DPAD_CENTER
         c.create_oval(P(dx0 - DPAD_RING, dy0 - DPAD_RING, dx0 + DPAD_RING, dy0 + DPAD_RING), fill=sk["well"],
                       outline=sk["plate"], width=pw)
-        rounded(c, *P(dx0 - 11, dy0 - 11, dx0 + 11, dy0 + 11), 5 * s, fill=sk["dpad"][0], outline="")   # d-pad hub
+        cross = [v for pt in DPAD_CROSS for v in pt]        # one rounded cross under the four arms: no seams
+        c.create_polygon(P(*[v + (1 if i % 2 == 0 else 2) for i, v in enumerate(cross)]), smooth=True,
+                         fill=mix(sk["well"], "#000000", .5), outline="")
+        c.create_polygon(P(*cross), smooth=True, fill=sk["dpad"][0], outline="")
         self.player_items[c] = [c.create_line(P(x - 5, y, x + 5, y), fill=sk["led_off"], width=3 * s, capstyle="round")
                                 for x, y in PLAYER_LEDS]
         zones = {}
@@ -121,12 +126,14 @@ class ControllerView:
         for name in PARTS:
             if name not in BEHIND:
                 make(name)
+        c.create_polygon(P(*cross), smooth=True, fill="", outline=sk["dpad"][1], width=w)
         c.create_oval(P(dx0 - 4, dy0 - 4, dx0 + 4, dy0 + 4), fill="#a6a6ae", outline="#d8d8de")   # metal centre
         arrows = {(0, -1): "Up", (0, 1): "Down", (-1, 0): "Left", (1, 0): "Right"}
         for (dx, dy), name in arrows.items():
-            x, y = dx0 + 21 * dx, dy0 + 21 * dy
-            c.create_polygon(P(x + 3 * dx, y + 3 * dy, x - 3 * dy - 2 * dx, y - 3 * dx - 2 * dy,
-                               x + 3 * dy - 2 * dx, y + 3 * dx - 2 * dy), fill="#77777e", outline="", tags=f"b:{name}")
+            x, y = dx0 + (DPAD_ARM - 11) * dx, dy0 + (DPAD_ARM - 11) * dy
+            c.create_polygon(P(x + 4.5 * dx, y + 4.5 * dy, x - 4.5 * dy - 3 * dx, y - 4.5 * dx - 3 * dy,
+                               x + 4.5 * dy - 3 * dx, y + 4.5 * dx - 3 * dy), fill="#86868e", outline="",
+                             tags=f"b:{name}")
         if mode == "home":
             self.callouts(c, ox)
         if mode == "leds":

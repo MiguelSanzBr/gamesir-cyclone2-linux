@@ -72,7 +72,7 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
         self._remapped = set()
         self._closing = False
         self._pad_fd = None
-        self.conn_text = None              # pill text of the last successful read
+        self.conn = None                   # connection badge state of the last successful read
         self._style()
         self._vars()
         if not chrome.install(self, self.s):    # dark frame drawn by the app; else the native one, asked to be dark
@@ -139,6 +139,8 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
 
         foot = tk.Frame(self, bg=BG)
         foot.pack(side="bottom", fill="x", padx=int(24 * s), pady=int(14 * s))
+        self.fw_label = tk.Label(foot, text="", bg=BG, fg=MUTED, font=theme.font(8))      # bottom-right corner
+        self.fw_label.pack(side="right", padx=(int(8 * s), 0))
         for text, cmd in ((_("Recarregar"), self.read_device), (_("Restaurar backup"), self.restore), ("Backup", self.backup)):
             self.button(foot, text, cmd).pack(side="right", padx=int(4 * s))
         self.lang_pick = tk.StringVar(value=i18n.LANG)                 # language selector, left of Backup

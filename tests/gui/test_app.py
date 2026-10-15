@@ -6,7 +6,7 @@ import pytest
 
 from cyclone2.gui import app as app_mod, theme
 
-from .conftest import click, make_app, no_thread, pump
+from .conftest import badge, click, make_app, no_thread, pump
 
 
 def test_family_resolution(monkeypatch):
@@ -34,7 +34,7 @@ def test_startup_timers_read_the_controller(fake):
     a.tk.willdispatch()
     try:
         pump(a, lambda: a.doc is not None and not a.busy)
-        assert "Conectado" in a.pill.cget("text") and a.active == 1
+        assert badge(a)[0] == "3.5.6" and a.active == 1
     finally:
         a.destroy()
 

@@ -9,7 +9,7 @@ from cyclone2 import keys
 from cyclone2.gui import app as app_mod, catalog, geometry, i18n, theme
 from cyclone2.gui.i18n import EN, FR, LANGS, _
 
-from .conftest import click, make_app, pump, texts, walk
+from .conftest import badge, click, make_app, pump, texts, walk
 
 GUI = os.path.dirname(i18n.__file__)
 REAL_SYSTEM_LANG = i18n.system_lang         # the autouse fixture replaces i18n.system_lang during each test
@@ -138,7 +138,7 @@ def test_app_starts_in_the_saved_language(monkeypatch):
     try:
         assert i18n.LANG == "en" and a.lang_choice.get() == "en"
         assert a.title() == "GameSir Cyclone 2 — Linux"
-        assert a.pill.cget("text") == "looking for controller…"
+        assert badge(a) == (None, False, "wifi")
         a.active = 2
         a.refresh_profiles()
         assert [b.text for b in a.profile_btns][:2] == ["Profile 1", "Profile 2  ●"]
@@ -153,7 +153,7 @@ def test_app_starts_in_the_saved_language(monkeypatch):
         assert "co:Analógico_esquerdo" in {t for c in walk(a) if c.winfo_class() == "Canvas"
                                            for i in c.find_all() for t in c.gettags(i)}     # tags stay Portuguese
         a.set_connected(None)
-        assert a.pill.cget("text") == "○  controller not found"
+        assert badge(a) == (None, True, "wifi")
         a.refresh_mapping()
         assert a.map_title.cget("text") == "Button A" and a.map_sub.cget("text") == "current function: default (A)"
     finally:
@@ -166,7 +166,7 @@ def test_runtime_messages_follow_the_language(mk, monkeypatch):
     a.read_device()
     pump(a)
     assert a.status.cget("text").startswith("Settings read from the controller")
-    assert a.pill.cget("text").startswith("●  Connected · ") and a.info_label.cget("text").startswith("Device: ")
+    assert badge(a)[0] and a.info_label.cget("text").startswith("Device: ")
     a.reset_profile()
     assert a.status.cget("text") == "App defaults restored for this profile."
 
@@ -199,9 +199,9 @@ def test_main_restarts_once_then_exits(monkeypatch):
 def test_footer_selector_left_of_backup_switches_language(monkeypatch):
     a = make_app(monkeypatch)
     foot = a.status.master
-    order = [getattr(w, "text", None) for w in foot.pack_slaves()]
+    order = [getattr(w, "text", None) for w in foot.pack_slaves()][1:]     # after the firmware corner
     assert order[:4] == ["Recarregar", "Restaurar backup", "Backup", "Português (Brasil)  ▾"]   # packed right to left
-    sel = foot.pack_slaves()[3]
+    sel = foot.pack_slaves()[4]
     sel.menu.invoke(1)
     assert a.lang_pick.get() == "en" and a.restart is True
     a.update()

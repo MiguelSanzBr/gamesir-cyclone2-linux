@@ -44,7 +44,6 @@ EN = {
     "Analógico direito": "Right stick", "Botões ABXY": "ABXY buttons", "Traseiros L4 / R4": "Paddles L4 / R4",
     # home
     "Aperte os botões do controle: eles acendem aqui.": "Press the controller's buttons: they light up here.",
-    "procurando controle…": "looking for controller…",
     "Perfil ativo no controle: {}": "Active profile on the controller: {}",
     # buttons page
     "Clique num botão do controle para escolher a função dele.\n"
@@ -87,14 +86,13 @@ EN = {
     "Idioma da interface": "Interface language",
     # status line, connection pill, dialogs
     "Padrões do app restaurados neste perfil.": "App defaults restored for this profile.",
-    "controle não encontrado": "controller not found",
     "Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.":
         "GameSir Cyclone 2 not found. Plug it in with the cable or the 2.4G dongle.",
     "O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.":
         "The controller did not answer. Check that it is on and connected (cable or 2.4G dongle) and try again.",
     "Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).":
         "No permission to access the controller ({}). Install the udev rule (see the README).", "Erro": "Error",
-    "Conectado · {} · firmware {}": "Connected · {} · firmware {}", "Bateria: {}%": "Battery: {}%",
+    "Bateria: {}%": "Battery: {}%",
     "Dispositivo: {}\nFirmware: {}": "Device: {}\nFirmware: {}",
     "Configuração lida do controle. As mudanças são salvas automaticamente.":
         "Settings read from the controller. Changes are saved automatically.",
@@ -155,7 +153,6 @@ FR = {
     'Botões ABXY': 'Boutons ABXY',
     'Traseiros L4 / R4': 'Palettes L4 / R4',
     'Aperte os botões do controle: eles acendem aqui.': "Appuyez sur les boutons de la manette : ils s'allument ici.",
-    'procurando controle…': 'recherche de la manette…',
     'Perfil ativo no controle: {}': 'Profil actif sur la manette : {}',
     'Clique num botão do controle para escolher a função dele.\nL4/R4: botões traseiros · ● verde: botão personalizado.': 'Cliquez sur un bouton de la manette pour choisir sa fonction.\nL4/R4 : boutons arrière · ● vert : bouton personnalisé.',
     'Turbo (disparo automático)': 'Turbo (tir automatique)',
@@ -215,12 +212,10 @@ FR = {
     'Cor do desenho': 'Couleur du dessin',
     'Idioma da interface': "Langue de l'interface",
     'Padrões do app restaurados neste perfil.': "Valeurs par défaut de l'appli restaurées sur ce profil.",
-    'controle não encontrado': 'manette introuvable',
     'Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.': 'GameSir Cyclone 2 introuvable. Branchez-la avec le câble ou le dongle 2,4 G.',
     'O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.': "La manette n'a pas répondu. Vérifiez qu'elle est allumée et connectée (câble ou dongle 2,4 G), puis réessayez.",
     'Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).': "Pas d'autorisation pour accéder à la manette ({}). Installez la règle udev (voir le README).",
     'Erro': 'Erreur',
-    'Conectado · {} · firmware {}': 'Connecté · {} · firmware {}',
     'Bateria: {}%': 'Batterie : {} %',
     'Dispositivo: {}\nFirmware: {}': 'Appareil : {}\nFirmware : {}',
     'Configuração lida do controle. As mudanças são salvas automaticamente.': 'Configuration lue depuis la manette. Les modifications sont enregistrées automatiquement.',
