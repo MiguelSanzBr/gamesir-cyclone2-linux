@@ -13,7 +13,7 @@ import pytest
 
 from cyclone2 import device, discovery, light, profile
 from cyclone2 import protocol as p
-from cyclone2.gui import app as app_mod, dialogs, i18n, sync, theme
+from cyclone2.gui import app as app_mod, chrome, dialogs, i18n, sync, theme
 from fake_device import FIXTURE
 
 BACKUP = open(FIXTURE, "rb").read()
@@ -116,6 +116,12 @@ def no_state(self, timeout=0.5):
     return None
 
 
+def no_window_manager(mp):
+    """The native title bar by default, as on a bare X server, whether or not the desktop running the tests has a
+    window manager; the frame tests swap in their own helper (``fake_x``)."""
+    mp.setattr(chrome, "X11", SimpleNamespace(of=lambda widget: None))
+
+
 # ---------------------------------------------------------------- fixtures
 @pytest.fixture(autouse=True)
 def isolated(monkeypatch, tmp_path):
@@ -139,6 +145,7 @@ def isolated(monkeypatch, tmp_path):
     monkeypatch.setattr(sync.dialogs, "askyesno", lambda *a, **kw: d.asked.append(a) or d.yes)
     monkeypatch.setattr(theme, "POLL_MS", 10 ** 7)
     monkeypatch.setattr(theme, "FRAME_MS", 10 ** 7)
+    no_window_manager(monkeypatch)
     return d
 
 
@@ -160,6 +167,7 @@ def shared_app():
         mp.setattr(theme, "FRAME_MS", 10 ** 7)
         mp.setattr(app_mod, "SETTINGS", os.devnull + "/gui.json")       # unwritable: never touches the real home
         mp.setattr(i18n, "system_lang", lambda env=None: "pt")
+        no_window_manager(mp)
         a = app_mod.App()
     a.withdraw()
     a.tk.willdispatch()             # worker thread may call app.after without a running mainloop()

@@ -1,5 +1,5 @@
 """libX11 helper of the window frame: lookups, properties and the move/resize request, on a fake library and on the
-real display (which has no window manager here, so it never reports support)."""
+real display (with or without a window manager)."""
 import ctypes
 from types import SimpleNamespace
 
@@ -168,5 +168,8 @@ def test_of_needs_every_part(shared_app, monkeypatch):
     assert x11.X11.of(shared_app) is None                                    # the manager cannot move windows for us
 
 
-def test_of_on_the_real_display_without_a_window_manager(shared_app):
-    assert x11.X11.of(shared_app) is None
+def test_of_on_the_real_display(shared_app):
+    """Bare Xvfb (CI) has no window manager, a desktop session usually has one: ``of`` follows what the root window
+    advertises."""
+    supported = x11.X11(x11.library(), x11.tk_display(shared_app)).supports("_NET_WM_MOVERESIZE")
+    assert isinstance(x11.X11.of(shared_app), x11.X11) is supported

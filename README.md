@@ -52,8 +52,8 @@ Unplug and replug the controller afterwards.
 
 ### AppImage (any distribution)
 
-Run the **appimage** workflow from the Actions tab and download the `cyclone2-appimage` artifact. It contains the
-AppImage, `install-udev.sh` and the udev rule. **The first time only**, install the rule, because an AppImage cannot do
+Download `cyclone2-appimage.zip` from the [Releases page](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases)
+and extract it. It contains the AppImage, `install-udev.sh` and the udev rule. **The first time only**, install the rule, because an AppImage cannot do
 it by itself:
 
 ```bash
