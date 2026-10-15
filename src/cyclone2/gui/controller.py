@@ -8,6 +8,7 @@ from .geometry import (BEHIND, BODY, CALLOUTS, DPAD_CENTER, DPAD_RING, HEIGHT, H
                        PLAYER_LEDS, ROLES, STICK_WELLS, TOP, WIDTH, ZONE_SHAPES)
 from .i18n import _
 from .theme import ACCENT, BG, BODY_FILL, FG, SEL_FILL, SKINS
+from .widgets import hand
 
 SECTION_TARGETS = ("sticks", "leds")      # callout targets that open a page instead of selecting a button
 
@@ -76,8 +77,10 @@ class ControllerView:
                                off=(0.0, 0.0), st=None, glowing=False, base=base, pts=pts)
             if mode == "map":
                 c.tag_bind(tag, "<Button-1>", lambda e, n=name: (self.flash(n), self.select_button(n)))
+                hand(c, tag)
             elif mode == "home":
                 c.tag_bind(tag, "<Button-1>", lambda e, n=name: (self.flash(n), self.select_button(n), self.show("buttons")))
+                hand(c, tag)
 
         for name in BEHIND:
             make(name)
@@ -112,6 +115,7 @@ class ControllerView:
             if mode == "leds":
                 for i in (halo, item):
                     c.tag_bind(i, "<Button-1>", lambda e, z=zone: self.pick_zone(z))
+                    hand(c, i)
             zones[zone] = (item, halo)
         self.zone_items[c] = zones
         for name in PARTS:
@@ -152,6 +156,7 @@ class ControllerView:
             c.create_oval(px - 3 * s, py - 3 * s, px + 3 * s, py + 3 * s, fill=theme.CALLOUT_DOT, outline="")
             page = target if target in SECTION_TARGETS else "buttons"
             c.tag_bind(tag, "<Button-1>", lambda e, t=target, p=page: (p == "buttons" and self.select_button(t), self.show(p)))
+            hand(c, tag)
 
     def apply_skin(self, name):
         """Redraw every controller drawing with another skin."""

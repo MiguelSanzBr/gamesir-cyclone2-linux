@@ -13,7 +13,7 @@ import pytest
 
 from cyclone2 import device, discovery, light, profile
 from cyclone2 import protocol as p
-from cyclone2.gui import app as app_mod, i18n, sync, theme
+from cyclone2.gui import app as app_mod, dialogs, i18n, sync, theme
 from fake_device import FIXTURE
 
 BACKUP = open(FIXTURE, "rb").read()
@@ -135,8 +135,8 @@ def isolated(monkeypatch, tmp_path):
     d = SimpleNamespace(save="", open="", yes=True, errors=[], asked=[])
     monkeypatch.setattr(sync.filedialog, "asksaveasfilename", lambda **kw: d.save)
     monkeypatch.setattr(sync.filedialog, "askopenfilename", lambda **kw: d.open)
-    monkeypatch.setattr(sync.messagebox, "showerror", lambda *a, **kw: d.errors.append(a))
-    monkeypatch.setattr(sync.messagebox, "askyesno", lambda *a, **kw: d.asked.append(a) or d.yes)
+    monkeypatch.setattr(sync.dialogs, "showerror", lambda *a, **kw: d.errors.append(a))
+    monkeypatch.setattr(sync.dialogs, "askyesno", lambda *a, **kw: d.asked.append(a) or d.yes)
     monkeypatch.setattr(theme, "POLL_MS", 10 ** 7)
     monkeypatch.setattr(theme, "FRAME_MS", 10 ** 7)
     return d

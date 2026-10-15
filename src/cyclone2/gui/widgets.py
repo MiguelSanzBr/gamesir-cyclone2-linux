@@ -9,6 +9,12 @@ from .i18n import _
 from .theme import ACCENT, FG, LINE, MUTED, TILE, TILE_HI
 
 
+def hand(canvas, item):
+    """Pointing-hand cursor while the mouse is over a clickable canvas item."""
+    canvas.tag_bind(item, "<Enter>", lambda e: canvas.configure(cursor="hand2"))
+    canvas.tag_bind(item, "<Leave>", lambda e: canvas.configure(cursor=""))
+
+
 class Pill(tk.Canvas):
     """Rounded button/chip: fill, hover, optional colour dot (canvas tag ``"dot"``); stretches with its cell."""
 
@@ -220,6 +226,7 @@ class ColorPicker(tk.Frame):
             x = (13 + 26 * i) * s
             dot = presets.create_oval(x - 10 * s, 5 * s, x + 10 * s, 25 * s, fill=c, outline=LINE, width=1)
             presets.tag_bind(dot, "<Button-1>", lambda e, c=c: self.choose(c))
+            hand(presets, dot)
         self._update()
 
     def _render_wheel(self, bg):
@@ -282,6 +289,7 @@ class ColorPicker(tk.Frame):
             x, y = (12 + 24 * (i % 3)) * s, (10 + 20 * (i // 3)) * s
             dot = self.recent_row.create_oval(x - 8 * s, y - 8 * s, x + 8 * s, y + 8 * s, fill=c, outline=LINE)
             self.recent_row.tag_bind(dot, "<Button-1>", lambda e, c=c: self.choose(c))
+            hand(self.recent_row, dot)
 
     def _update(self):
         s, d, r0 = self.s, self.d, self.d / 2

@@ -7,7 +7,7 @@ import tkinter.font as tkfont
 from tkinter import ttk
 
 from .. import keys
-from . import i18n, theme
+from . import chrome, i18n, theme
 from .catalog import BUTTONS, MOTION, SECTIONS
 from .controller import ControllerView
 from .editor import Editor
@@ -16,6 +16,7 @@ from .live_input import PadInput
 from .pages import Pages
 from .sync import DeviceSync
 from .theme import BG, FG, MUTED, SKINS, TILE
+from .titlebar import dark_on_show
 from .widgets import Pill, Select
 
 SETTINGS = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"), "cyclone2", "gui.json")
@@ -74,6 +75,8 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
         self.conn_text = None              # pill text of the last successful read
         self._style()
         self._vars()
+        if not chrome.install(self, self.s):    # dark frame drawn by the app; else the native one, asked to be dark
+            dark_on_show(self)
         self._build()
         w, h = int(1180 * self.s), int(860 * self.s)
         self.geometry(f"{min(w, int(self.winfo_screenwidth() * .95))}x{min(h, int(self.winfo_screenheight() * .9))}")

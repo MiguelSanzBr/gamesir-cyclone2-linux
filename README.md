@@ -87,6 +87,10 @@ c2gui
 - Changes are saved automatically. **Backup / Restore backup** save and restore everything.
 - The interface is available in English, French and Brazilian Portuguese. It follows the system language and can be
   changed with the language selector next to **Backup**, or on the **Profile** page (the window restarts).
+- The window and its dialogs draw their own dark frame (title bar, minimise, maximise, close, resize edges). The
+  window manager still moves and resizes the window, so snap, tiling, maximise and the taskbar entry work as usual.
+  Where that is not possible the system title bar is kept and asked for its dark variant. Set
+  `CYCLONE2_NATIVE_TITLEBAR=1` to always use the system title bar.
 
 ### Command line
 

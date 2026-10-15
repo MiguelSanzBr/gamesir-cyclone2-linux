@@ -102,7 +102,7 @@ EN = {
     "Vibrando…": "Rumbling…", "✓ Teste de vibração concluído.": "✓ Rumble test finished.",
     "Fazendo backup…": "Backing up…", "Backup salvo em {}": "Backup saved to {}",
     "Arquivo inválido ({} bytes, esperado {}).": "Invalid file ({} bytes, expected {}).",
-    "Restaurar": "Restore", "Substituir todos os perfis e as luzes por este backup?":
+    "Restaurar": "Restore", "Fechar": "Close", "Sim": "Yes", "Não": "No", "Substituir todos os perfis e as luzes por este backup?":
         "Replace all profiles and lights with this backup?",
     "verificação falhou": "verification failed", "Backup restaurado e verificado.": "Backup restored and verified.",
     "Restaurando…": "Restoring…",
@@ -229,6 +229,9 @@ FR = {
     'Backup salvo em {}': 'Sauvegarde enregistrée dans {}',
     'Arquivo inválido ({} bytes, esperado {}).': 'Fichier invalide ({} octets, {} attendus).',
     'Restaurar': 'Restaurer',
+    'Fechar': 'Fermer',
+    'Sim': 'Oui',
+    'Não': 'Non',
     'Substituir todos os perfis e as luzes por este backup?': 'Remplacer tous les profils et les lumières par cette sauvegarde ?',
     'verificação falhou': 'échec de la vérification',
     'Backup restaurado e verificado.': 'Sauvegarde restaurée et vérifiée.',
