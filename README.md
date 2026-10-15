@@ -63,6 +63,17 @@ chmod +x install-udev.sh GameSir-Cyclone-2-*.AppImage   # a zip download loses t
 
 Then unplug and replug the controller and start the AppImage. Without the rule the app cannot open the controller.
 
+### Flatpak
+
+Submitted to Flathub as `io.github.miguelsanzbr.gamesir-cyclone2-linux` (waiting for review). The sandbox reaches the device through its hidraw node, so
+the udev rule is still installed once on the host, from a clone of this repository or with `install-udev.sh` from the AppImage zip:
+
+```bash
+sudo install -m644 udev/70-gamesir-cyclone2.rules /etc/udev/rules.d/ && sudo udevadm control --reload && sudo udevadm trigger --action=add --subsystem-match=hidraw
+```
+
+The AppStream metadata, desktop entry and icon for Flatpak are in `packaging/flatpak/`.
+
 ### From source
 
 Requirements: Python ≥ 3.8 and Tk (`python3-tk` on Debian/Ubuntu) for the GUI. There are no other
