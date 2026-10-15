@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Cyclone Pad Config
+Comment=Configure the GameSir Cyclone 2 controller
+Exec=c2gui
+Icon=io.github.miguelsanzbr.gamesir-cyclone2-linux
+Terminal=false
+Categories=Settings;HardwareSettings;Game;
+Keywords=gamesir;cyclone;gamepad;controller;joystick;remap;
+StartupNotify=true

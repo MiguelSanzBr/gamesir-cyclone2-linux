@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## 0.1.0-beta.3 — 2026-10-15
+
+* Flatpak: AppStream metadata, desktop entry and icon under the app ID `io.github.miguelsanzbr.gamesir-cyclone2-linux` (`packaging/flatpak/`), ready for a
+  Flathub submission. The Flatpak build bundles Tcl/Tk 8.6 and tkinter, which the Freedesktop runtime lacks.
+
 ## 0.1.0-beta.2 — 2026-10-15
 
 * AppImage for any distribution, attached to the release with `install-udev.sh`, the udev rule and a short notice
