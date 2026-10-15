@@ -50,6 +50,19 @@ sudo apt install ./cyclone2_0.1.0-beta1_all.deb
 This installs the `c2ctl` and `c2gui` commands, the menu entry "GameSir Cyclone 2" and the udev rule.
 Unplug and replug the controller afterwards.
 
+### AppImage (any distribution)
+
+Run the **appimage** workflow from the Actions tab and download the `cyclone2-appimage` artifact. It contains the
+AppImage, `install-udev.sh` and the udev rule. **The first time only**, install the rule, because an AppImage cannot do
+it by itself:
+
+```bash
+chmod +x install-udev.sh GameSir-Cyclone-2-*.AppImage   # a zip download loses the executable bit
+./install-udev.sh                                        # asks for your password
+```
+
+Then unplug and replug the controller and start the AppImage. Without the rule the app cannot open the controller.
+
 ### From source
 
 Requirements: Python ≥ 3.8 and Tk (`python3-tk` on Debian/Ubuntu) for the GUI. There are no other
@@ -169,6 +182,7 @@ botões e de luzes com roda de cores.
 
 - **Instalar**: baixe o `.deb` em [Releases](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases) e rode
   `sudo apt install ./cyclone2_*_all.deb`. Depois reconecte o controle. O app aparece no menu como "GameSir Cyclone 2".
+  Com o **AppImage**, rode uma vez o `install-udev.sh` que vem junto (veja *AppImage* acima) e reconecte o controle.
 - **Usar**: `c2gui`. As mudanças são salvas sozinhas. Escolher um perfil no topo também o ativa no controle.
 - **Idioma**: a interface existe em português (Brasil), inglês e francês, segue o idioma do sistema e pode ser trocada no
   seletor ao lado do **Backup** ou na página **Perfil** (a janela reinicia).
