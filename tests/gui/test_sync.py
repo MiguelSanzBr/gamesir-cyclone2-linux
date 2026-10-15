@@ -54,8 +54,32 @@ def test_run_no_device_systemexit(app, dlg, monkeypatch):
     monkeypatch.setattr(discovery, "find_devices", lambda: iter([]))
     app.run("lbl", lambda d: None, lambda r: pytest.fail("done"))
     pump(app)
-    assert "not found" in app.status.cget("text") and app.status.cget("fg") == theme.DANGER
+    assert "não encontrado" in app.status.cget("text") and app.status.cget("fg") == theme.DANGER
     assert "não encontrado" in app.pill.cget("text") and dlg.errors and not app.busy
+
+
+def test_run_explains_the_errors_a_user_can_fix(app, dlg, monkeypatch):
+    def fail(error):
+        def job(dev):
+            raise error
+        app.run("lbl", job, lambda r: pytest.fail("done"))
+        pump(app)
+        return app.status.cget("text")
+    assert "não respondeu" in fail(device.NoAnswer("no answer to command 11 (controller busy or disconnected)"))
+    assert "no answer" not in app.status.cget("text") and dlg.errors
+    monkeypatch.setattr(device, "Device", lambda: (_ for _ in ()).throw(device.PermissionDenied("/dev/hidraw9")))
+    app.run("lbl", lambda d: None, lambda r: pytest.fail("done"))
+    pump(app)
+    assert "Sem permissão" in app.status.cget("text") and "/dev/hidraw9" in app.status.cget("text")
+
+
+def test_explain_is_translated(monkeypatch):
+    from cyclone2.gui import i18n
+    monkeypatch.setattr(i18n, "LANG", "fr")
+    assert sync.explain(device.NoAnswer("x")).startswith("La manette n'a pas répondu")
+    monkeypatch.setattr(i18n, "LANG", "en")
+    assert sync.explain(device.NotFound("x")).startswith("GameSir Cyclone 2 not found. Plug it in")
+    assert sync.explain(IOError("raw")) == "raw"
 
 
 def test_run_job_error_with_empty_message(app, dlg):

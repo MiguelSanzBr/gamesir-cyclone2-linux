@@ -5,8 +5,9 @@ import os
 
 import pytest
 
+from cyclone2 import keys
 from cyclone2.gui import app as app_mod, catalog, geometry, i18n, theme
-from cyclone2.gui.i18n import EN, LANGS, _
+from cyclone2.gui.i18n import EN, FR, LANGS, _
 
 from .conftest import click, make_app, pump, texts, walk
 
@@ -25,6 +26,9 @@ REAL_SYSTEM_LANG = i18n.system_lang         # the autouse fixture replaces i18n.
     ({"LC_ALL": "C", "LC_MESSAGES": "pt_BR.UTF-8"}, "en"),
     ({"LC_MESSAGES": "pt_BR.UTF-8", "LANG": "en_US.UTF-8"}, "pt"),
     ({"LANG": "pt"}, "pt"),
+    ({"LANG": "fr_FR.UTF-8"}, "fr"),
+    ({"LANGUAGE": "fr:en", "LANG": "en_US.UTF-8"}, "fr"),
+    ({"LANG": "de_DE.UTF-8"}, "en"),
 ])
 def test_system_lang(env, lang):
     assert REAL_SYSTEM_LANG(env) == lang
@@ -41,11 +45,28 @@ def test_translate(monkeypatch):
     assert _("Botões") == "Botões"                          # default: the Portuguese source text
     monkeypatch.setattr(i18n, "LANG", "en")
     assert _("Botões") == "Buttons" and _("Perfil {}").format(2) == "Profile 2"
+    monkeypatch.setattr(i18n, "LANG", "fr")
+    assert _("Botões") == "Boutons" and _("Perfil {}").format(2) == "Profil 2"
     assert _("A") == "A" and _("texto desconhecido") == "texto desconhecido"     # unknown keys fall back
 
 
+def test_missing_translation_falls_back_to_english(monkeypatch):
+    monkeypatch.setattr(i18n, "LANG", "fr")
+    monkeypatch.setitem(EN, "texto novo", "new text")
+    assert _("texto novo") == "new text" and _("texto desconhecido") == "texto desconhecido"
+    monkeypatch.setattr(i18n, "LANG", "xx")                 # an unknown language is English too
+    assert _("Botões") == "Buttons"
+
+
+def test_steam_shortcut_target_is_a_valid_key_combination():
+    assert [v for v, _t in catalog.SHORTCUTS] == ["KB_LCTRL+KB_2"]
+    for value, label in catalog.SHORTCUTS:
+        assert (value, label) in catalog.TARGETS and label in EN and label in FR
+        assert all(keys.code(k) for k in value.split("+")) and len(value.split("+")) <= 3
+
+
 def test_langs():
-    assert LANGS == {"pt": "Português (Brasil)", "en": "English"}
+    assert LANGS == {"pt": "Português (Brasil)", "en": "English", "fr": "Français"}
 
 
 # ---------------------------------------------------------------- the table covers the code
@@ -70,6 +91,8 @@ def test_every_literal_is_translated_and_no_key_is_unused():
     assert sorted(called - set(EN)) == []
     assert sorted(set(EN) - constants) == []      # keys that no literal of the GUI uses (also covers catalog labels)
     assert all(EN.values())
+    assert set(FR) == set(EN) and all(FR.values())
+    assert all(FR[k].count("{}") == k.count("{}") for k in EN)         # placeholders survive the translation
 
 
 def test_constant_labels_are_translated():
@@ -91,7 +114,7 @@ def test_language_chip_saves_and_restarts(monkeypatch):
     app_mod.save_settings({"skin": "pink"})
     a = make_app(monkeypatch)
     assert a.skin == "pink" and a.restart is False and a.lang_choice.get() == "pt"
-    assert _chip(a, "English") and _chip(a, "Português (Brasil)")       # shown untranslated
+    assert _chip(a, "English") and _chip(a, "Português (Brasil)") and _chip(a, "Français")       # shown untranslated
     a.lang_choice.set("pt")                                              # same language: nothing happens
     assert a.restart is False and app_mod.load_settings() == {"skin": "pink"}
     a.lang_choice.set("en")

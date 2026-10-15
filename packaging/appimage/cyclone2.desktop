@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=GameSir-Cyclone-2
+GenericName=Gamepad configurator
+Comment=Configure the GameSir Cyclone 2 controller
+Comment[pt_BR]=Configure o controle GameSir Cyclone 2
+Exec=c2gui
+Icon=cyclone2
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=gamesir;cyclone;gamepad;controller;joystick;

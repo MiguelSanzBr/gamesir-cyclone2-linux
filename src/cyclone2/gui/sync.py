@@ -1,13 +1,24 @@
 """Mixin: device I/O on a worker thread — initial read, profile switching, auto-save, polling, rumble, backups."""
 import threading
 import time
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 
 from .. import cli, device, light, profile
 from .. import protocol as p
-from . import theme
+from . import dialogs, theme
 from .i18n import _
 from .theme import ACCENT, DANGER, MUTED
+
+
+def explain(error):
+    """Clear, translated text for the errors a user can fix; anything else keeps its own message."""
+    if isinstance(error, device.NotFound):
+        return _("Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.")
+    if isinstance(error, device.NoAnswer):
+        return _("O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.")
+    if isinstance(error, device.PermissionDenied):
+        return _("Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).").format(error.path)
+    return str(error) or error.__class__.__name__
 
 
 class DeviceSync:
@@ -37,12 +48,12 @@ class DeviceSync:
                 res = job(dev)
                 cb = lambda: done(res)
             except BaseException as e:     # Device uses sys.exit for user-facing errors
-                msg = str(e) or e.__class__.__name__
+                msg = explain(e)
                 if quiet:
                     cb = lambda: self.set_connected(None)
                 else:
                     cb = lambda: (self.set_status(msg, True), self.set_connected(None),
-                                  messagebox.showerror(_("Erro"), msg, parent=self))
+                                  dialogs.showerror(_("Erro"), msg, parent=self))
             finally:
                 if dev:
                     dev.close()
@@ -186,9 +197,9 @@ class DeviceSync:
         with open(path, "rb") as f:
             data = f.read()
         if len(data) != cli.BACKUP_SIZE:
-            return messagebox.showerror(_("Erro"), _("Arquivo inválido ({} bytes, esperado {}).").format(
+            return dialogs.showerror(_("Erro"), _("Arquivo inválido ({} bytes, esperado {}).").format(
                 len(data), cli.BACKUP_SIZE), parent=self)
-        if not messagebox.askyesno(_("Restaurar"), _("Substituir todos os perfis e as luzes por este backup?"),
+        if not dialogs.askyesno(_("Restaurar"), _("Substituir todos os perfis e as luzes por este backup?"),
                                   parent=self):
             return
 

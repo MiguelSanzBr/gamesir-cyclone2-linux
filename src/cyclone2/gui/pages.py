@@ -255,7 +255,7 @@ class Pages:
         self.label(c, _("Cor do desenho"))
         self.chips(c, self.skin_choice, [(k, v["name"]) for k, v in SKINS.items()], 3)
         self.label(c, _("Idioma da interface"))
-        self.chips(c, self.lang_choice, list(LANGS.items()), 2)
+        self.chips(c, self.lang_choice, list(LANGS.items()), 3)
 
     # ------------------------------------------------------------ navigation
     def show(self, name):

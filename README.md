@@ -50,6 +50,19 @@ sudo apt install ./cyclone2_0.1.0-beta1_all.deb
 This installs the `c2ctl` and `c2gui` commands, the menu entry "GameSir Cyclone 2" and the udev rule.
 Unplug and replug the controller afterwards.
 
+### AppImage (any distribution)
+
+Download `cyclone2-appimage.zip` from the [Releases page](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases)
+and extract it. It contains the AppImage, `install-udev.sh` and the udev rule. **The first time only**, install the rule, because an AppImage cannot do
+it by itself:
+
+```bash
+chmod +x install-udev.sh GameSir-Cyclone-2-*.AppImage   # a zip download loses the executable bit
+./install-udev.sh                                        # asks for your password
+```
+
+Then unplug and replug the controller and start the AppImage. Without the rule the app cannot open the controller.
+
 ### From source
 
 Requirements: Python ≥ 3.8 and Tk (`python3-tk` on Debian/Ubuntu) for the GUI. There are no other
@@ -85,8 +98,12 @@ c2gui
   list) and use the colour wheel. While you are on this page the controller holds the frame being edited.
 - **Profile**: name, d-pad and ABXY options, sleep timer, and the drawing colour (black, white or pink).
 - Changes are saved automatically. **Backup / Restore backup** save and restore everything.
-- The interface is available in English and Brazilian Portuguese. It follows the system language and can be
+- The interface is available in English, French and Brazilian Portuguese. It follows the system language and can be
   changed with the language selector next to **Backup**, or on the **Profile** page (the window restarts).
+- The window and its dialogs draw their own dark frame (title bar, minimise, maximise, close, resize edges). The
+  window manager still moves and resizes the window, so snap, tiling, maximise and the taskbar entry work as usual.
+  Where that is not possible the system title bar is kept and asked for its dark variant. Set
+  `CYCLONE2_NATIVE_TITLEBAR=1` to always use the system title bar.
 
 ### Command line
 
@@ -165,8 +182,9 @@ botões e de luzes com roda de cores.
 
 - **Instalar**: baixe o `.deb` em [Releases](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases) e rode
   `sudo apt install ./cyclone2_*_all.deb`. Depois reconecte o controle. O app aparece no menu como "GameSir Cyclone 2".
+  Com o **AppImage**, rode uma vez o `install-udev.sh` que vem junto (veja *AppImage* acima) e reconecte o controle.
 - **Usar**: `c2gui`. As mudanças são salvas sozinhas. Escolher um perfil no topo também o ativa no controle.
-- **Idioma**: a interface existe em português (Brasil) e inglês, segue o idioma do sistema e pode ser trocada no
+- **Idioma**: a interface existe em português (Brasil), inglês e francês, segue o idioma do sistema e pode ser trocada no
   seletor ao lado do **Backup** ou na página **Perfil** (a janela reinicia).
 - **Backup**: `c2ctl backup arquivo.bin` / `c2ctl restore arquivo.bin`.
 - Sem vínculo com a GameSir. O protocolo foi obtido por engenharia reversa para interoperabilidade.
