@@ -7,7 +7,9 @@ from .. import cli, device, light, profile
 from .. import protocol as p
 from . import dialogs, theme
 from .i18n import _
-from .theme import ACCENT, DANGER, MUTED
+from .theme import ACCENT, BG, DANGER, MUTED
+
+WIRELESS = (0x102A, 0x100B)     # 2.4G PIDs (protocol.PIDS): Wi-Fi icon; the cable gets a plug
 
 
 def explain(error):
@@ -26,8 +28,45 @@ class DeviceSync:
     def set_status(self, text, error=False):
         self.status.configure(text=text, fg=DANGER if error else MUTED)
 
-    def set_connected(self, text):
-        self.pill.configure(text=f"●  {text}" if text else "○  " + _("controle não encontrado"), fg=ACCENT if text else MUTED)
+    def set_connected(self, state):
+        """Connection badge, as in the 8BitDo app: link icon (Wi-Fi through the 2.4G dongle, a plug on the cable) and
+        battery; the firmware goes to the footer's corner. ``state``: ``(pid, firmware, battery %, charging)`` when
+        connected (battery may be ``None``), ``None`` when the controller does not answer (grey icon with a red X),
+        ``False`` while still looking (grey Wi-Fi)."""
+        c, s = self.pill, self.s
+        c.delete("all")
+        col, w = ACCENT if state else MUTED, max(1, round(2 * s))
+        if state and state[0] not in WIRELESS:                 # plug: cable, body, two prongs
+            c.create_line(2 * s, 12 * s, 8 * s, 12 * s, fill=col, width=w, capstyle="round")
+            c.create_rectangle(8 * s, 6 * s, 16 * s, 18 * s, fill=col, outline="")
+            for y in (9, 15):
+                c.create_line(16 * s, y * s, 21 * s, y * s, fill=col, width=w, capstyle="round")
+        else:                                                  # Wi-Fi: three arcs over a dot
+            x, y = 11 * s, 17 * s
+            for r in (5, 9.5, 14):
+                c.create_arc(x - r * s, y - r * s, x + r * s, y + r * s, start=50, extent=80, style="arc", outline=col,
+                             width=w)
+            c.create_oval(x - 2 * s, y - 2 * s, x + 2 * s, y + 2 * s, fill=col, outline="")
+        if state is None:                                      # red X over the bottom-right of the icon
+            c.create_line(15 * s, 10 * s, 22 * s, 17 * s, fill=DANGER, width=w, capstyle="round")
+            c.create_line(15 * s, 17 * s, 22 * s, 10 * s, fill=DANGER, width=w, capstyle="round")
+        self.fw_label.configure(text=f"firmware {state[1]}" if state else "")
+        if state and state[2] is not None:                     # battery outline, fill to the level, then the %
+            battery, px, bw, bh, top = state[2], 32 * s, 22 * s, 11 * s, 6 * s
+            c.create_rectangle(px, top, px + bw, top + bh, outline=col, width=max(1, round(1.5 * s)))
+            c.create_rectangle(px + bw, top + 3 * s, px + bw + 2.5 * s, top + bh - 3 * s, fill=col, outline="")
+            level = min(max(battery, 0), 100) / 100
+            if level:
+                c.create_rectangle(px + 2 * s, top + 2 * s, px + 2 * s + (bw - 4 * s) * level, top + bh - 2 * s,
+                                   fill=DANGER if battery <= 15 else col, outline="")
+            if state[3]:                                       # charging: a bolt across the battery
+                bx, by = px + bw / 2, top + bh / 2
+                bolt = (1.5, -6, -3, 1, 0, 1, -1.5, 6, 3, -1, 0, -1)
+                c.create_polygon([(by if i % 2 else bx) + v * s for i, v in enumerate(bolt)], fill=BG, outline=col,
+                                 width=1, tags="charging")
+            c.create_text(px + bw + 6 * s, 11.5 * s, text=f"{battery}%", anchor="w", fill=col, font=theme.font(9),
+                          tags="battery")
+        c.configure(width=c.bbox("all")[2] + 2)
 
     # ------------------------------------------------------------ worker
     def run(self, label, job, done, quiet=False):
@@ -75,8 +114,8 @@ class DeviceSync:
             path, pid, (fw, dongle), n, data, ldata, st = r
             self.show_profile(n, data)
             self.lbase, self.lights = ldata, light.decode(ldata)
-            self.conn_text = _("Conectado · {} · firmware {}").format(p.PIDS.get(pid, hex(pid)), fw)
-            self.set_connected(self.conn_text)
+            self.conn = (pid, fw, st and st["battery"], st and st["charging"])
+            self.set_connected(self.conn)
             battery = "\n" + _("Bateria: {}%").format(st["battery"]) if st else ""
             self.info_label.configure(text=_("Dispositivo: {}\nFirmware: {}").format(path, fw) + (f" · dongle {dongle}" if dongle else "")
                                       + battery)
@@ -164,8 +203,10 @@ class DeviceSync:
 
             def done(r):
                 n, data = r
-                if self.conn_text:
-                    self.set_connected(self.conn_text)     # recover the pill after a transient error
+                if self.conn:
+                    if self.pad.get("battery") is not None:          # live battery from the state stream
+                        self.conn = self.conn[:2] + (self.pad["battery"], self.pad["charging"])
+                    self.set_connected(self.conn)          # recover the badge after a transient error
                 if data is not None:
                     self.show_profile(n, data)
                     self.load()

@@ -2,10 +2,21 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.0-beta.2 — 2026-10-15
 
-* `c2gui`: the interface is available in English and Brazilian Portuguese. It follows the system language and can
-  be changed with the selector next to Backup or on the Profile page.
+* AppImage for any distribution, attached to the release with `install-udev.sh`, the udev rule and a short notice
+  (built by the manual `appimage` workflow). Thanks to @moi952.
+* `c2gui`: the interface is available in English, French and Brazilian Portuguese. It follows the system language
+  and can be changed with the selector next to Backup or on the Profile page. (French by @moi952.)
+* `c2gui`: dark window frame drawn by the app; the window manager still moves, resizes, snaps and maximises the
+  window. `CYCLONE2_NATIVE_TITLEBAR=1` keeps the system title bar. Dialogs use the same style. (@moi952)
+* `c2gui`: clear, translated messages when the controller is missing, silent or not accessible. (@moi952)
+* `c2gui`: new remap choices "Home" and "Steam quick menu" (Ctrl+2). (@moi952)
+* `c2gui`: connection badge as in the 8BitDo Ultimate 2 configurator: Wi-Fi through the 2.4G dongle or a plug on
+  the cable, live battery level (red at 15% or less, a bolt while charging), a red X when the controller does
+  not answer; the firmware moved to the footer's corner.
+* `c2gui`: the d-pad is one rounded cross with larger arrows.
+* Checked through the 2.4G dongle as well as on the cable.
 
 ## 0.1.0-beta.1 — 2026-10-12
 

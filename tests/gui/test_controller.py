@@ -224,7 +224,8 @@ def test_apply_skin_draws_skin_colours(app, name):
     assert len(app.ctrl) == 3 and len(app._imgs) == 3 and len(app.zone_items) == 3 and len(app.player_items) == 3
     for c, (parts, mode) in app.ctrl.items():
         for pname, p in parts.items():
-            assert p["base"] == sk[geometry.ROLES.get(pname, "btn")]
+            fill, line, text = sk[geometry.ROLES.get(pname, "btn")]
+            assert p["base"] == (fill, "" if geometry.ROLES.get(pname) == "dpad" else line, text)   # d-pad: no seams
             shown = (theme.SEL_FILL, theme.ACCENT, theme.ACCENT) if (mode, pname) == ("map", app.sel_btn) else p["base"]
             assert p["st"] == shown                                      # refresh_mapping restyled the new items
             assert c.itemcget(p["body"], "fill") == shown[0] and c.itemcget(p["body"], "outline") == shown[1]

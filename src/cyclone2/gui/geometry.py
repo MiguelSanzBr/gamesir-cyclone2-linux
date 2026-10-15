@@ -22,13 +22,30 @@ def mirror(pts):
     return tuple((WIDTH - x, y) for x, y in pts)
 
 
+DPAD_CENTER, DPAD_RING = (163, 157), 37
+DPAD_ARM, DPAD_HALF = 30, 11     # d-pad cross: arm length and half width
+DPAD_DIRS = {"Up": (0, -1), "Right": (1, 0), "Down": (0, 1), "Left": (-1, 0)}
+
+
+def _dpad(pts, dx, dy):
+    """Rotate points drawn for the Up arm towards (dx, dy) and move them onto the d-pad centre."""
+    cx, cy = DPAD_CENTER
+    return tuple((cx - y * dx - x * dy, cy + x * dx - y * dy) for x, y in pts)
+
+
+# one arm, and the whole cross, as smoothed polygons: the doubled inner corners stay sharp, the ends come out round
+_A, _H = DPAD_ARM, DPAD_HALF
+DPAD_ARMS = {n: _dpad(((-_H, -_H), (-_H, -_H), (-_H, -_A), (_H, -_A), (_H, -_H), (_H, -_H)), *d)
+             for n, d in DPAD_DIRS.items()}
+DPAD_CROSS = tuple(p for d in DPAD_DIRS.values() for p in _dpad(((-_H, -_A), (_H, -_A), (_H, -_H), (_H, -_H)), *d))
+
 # name -> (shape, coords, label). shape: circle (x, y, r) | rect/rrect (x1, y1, x2, y2) | poly (points, label point)
 PARTS = {
     "LT": ("poly", (LT_PTS, (114, -3)), "LT"), "RT": ("poly", (mirror(LT_PTS), (328, -3)), "RT"),
     "LB": ("poly", (LB_PTS, (104, 13)), "LB"), "RB": ("poly", (mirror(LB_PTS), (338, 13)), "RB"),
     "LS": ("circle", (109, 85, 26), ""), "RS": ("circle", (276, 152, 26), ""),
-    "Up": ("rect", (152, 129, 174, 151), ""), "Down": ("rect", (152, 163, 174, 185), ""),
-    "Left": ("rect", (135, 146, 157, 168), ""), "Right": ("rect", (169, 146, 191, 168), ""),
+    **{n: ("poly", (DPAD_ARMS[n], (DPAD_CENTER[0] + 20 * d[0], DPAD_CENTER[1] + 20 * d[1])), "")
+       for n, d in DPAD_DIRS.items()},
     "Y": ("circle", (331, 58, 14), "Y"), "A": ("circle", (331, 116, 14), "A"),
     "X": ("circle", (302, 87, 14), "X"), "B": ("circle", (360, 87, 14), "B"),
     "View": ("rrect", (154, 41, 168, 57), "−"), "Menu": ("rrect", (274, 41, 288, 57), "+"),
@@ -43,7 +60,6 @@ ROLES = {**dict.fromkeys(("A", "B", "X", "Y"), "face"), **dict.fromkeys(("Up", "
          **dict.fromkeys(("LT", "RT"), "trigger"), "Home": "home"}
 
 STICK_WELLS = {"LS": (109, 85, 33), "RS": (276, 152, 33)}
-DPAD_CENTER, DPAD_RING = (163, 157), 37
 PLAYER_LEDS = [(221, 114 + 11 * i) for i in range(4)]    # profile indicator dashes, profile 1 at the top
 PLAYER_COLORS = ("#7ed321", "#f8e71c", "#f5a623", "#e0262b")
 

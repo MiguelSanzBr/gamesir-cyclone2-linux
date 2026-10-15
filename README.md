@@ -44,7 +44,7 @@ Download `cyclone2_<version>_all.deb` from the
 [Releases page](https://github.com/MiguelSanzBr/gamesir-cyclone2-linux/releases), then:
 
 ```bash
-sudo apt install ./cyclone2_0.1.0-beta1_all.deb
+sudo apt install ./cyclone2_0.1.0-beta2_all.deb
 ```
 
 This installs the `c2ctl` and `c2gui` commands, the menu entry "GameSir Cyclone 2" and the udev rule.

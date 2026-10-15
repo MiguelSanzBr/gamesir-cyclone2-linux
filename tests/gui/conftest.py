@@ -20,6 +20,14 @@ BACKUP = open(FIXTURE, "rb").read()
 
 
 # ---------------------------------------------------------------- helpers
+def badge(app):
+    """Connection badge as ``(firmware text or None, red X shown, "wifi" or "plug")``."""
+    c, fw = app.pill, app.fw_label.cget("text")             # firmware sits in the footer's corner
+    x = [i for i in c.find_all() if c.type(i) == "line" and c.itemcget(i, "fill") == theme.DANGER]
+    icon = "wifi" if any(c.type(i) == "arc" for i in c.find_all()) else "plug"
+    return (fw.split()[-1] if fw else None), bool(x), icon
+
+
 def pump(app, cond=None, timeout=5.0):
     """Run the Tk event loop until cond() (default: worker finished and its after-callbacks ran)."""
     cond = cond or (lambda: not app.busy)
@@ -186,7 +194,7 @@ def mk(shared_app, fake, monkeypatch):
         pump(a)
         clear_timers(a)
         fake.current = current
-        a.doc = a.base = a.lights = a.lbase = a.active = a.conn_text = None
+        a.doc = a.base = a.lights = a.lbase = a.active = a.conn = None
         a.sel_btn, a.zone, a.frame, a._remapped, a._loading = "A", "all", 0, set(), False
         a.pad_down, a.pad, a.press_t, a._pad_fd = set(), {}, {}, None
         if a.skin != "black":

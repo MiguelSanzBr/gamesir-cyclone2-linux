@@ -9,7 +9,7 @@ from cyclone2 import cli, device, discovery, profile
 from cyclone2 import protocol as p
 from cyclone2.gui import sync, theme
 
-from .conftest import BACKUP, doc_of, lights_of, no_state, pump, record, written
+from .conftest import BACKUP, badge, doc_of, lights_of, no_state, pump, record, written
 
 
 REAL_STATE = device.Device.state
@@ -24,10 +24,24 @@ def test_set_status_and_connected(app):
     assert app.status.cget("fg") == theme.DANGER and app.status.cget("text") == "oops"
     app.set_status("ok")
     assert app.status.cget("fg") == theme.MUTED
-    app.set_connected("hi")
-    assert app.pill.cget("text") == "●  hi" and app.pill.cget("fg") == theme.ACCENT
-    app.set_connected(None)
-    assert "não encontrado" in app.pill.cget("text") and app.pill.cget("fg") == theme.MUTED
+    c = app.pill
+    arcs = lambda: {c.itemcget(i, "outline") for i in c.find_all() if c.type(i) == "arc"}
+    fills = lambda: [c.itemcget(i, "fill") for i in c.find_all() if c.type(i) == "rectangle"]
+    app.set_connected((0x100B, "3.5.6", 80, 0))                # 2.4G dongle: Wi-Fi, battery, firmware in the footer
+    assert badge(app) == ("3.5.6", False, "wifi") and arcs() == {theme.ACCENT}
+    assert c.itemcget(c.find_withtag("battery")[0], "text") == "80%" and not c.find_withtag("charging")
+    app.set_connected((0x1053, "3.5.6", 80, 1))                # cable: a plug; charging: a bolt
+    assert badge(app) == ("3.5.6", False, "plug") and c.find_withtag("charging")
+    app.set_connected((0x1053, "3.5.6", 10, 0))                # low battery: red level
+    assert theme.DANGER in fills()
+    app.set_connected((0x1053, "3.5.6", 0, 0))                 # empty: outline and nub only (plus the plug body)
+    assert len(fills()) == 3
+    app.set_connected((0x1053, "3.5.6", None, None))           # battery unknown: icon and firmware only
+    assert not c.find_withtag("battery") and badge(app) == ("3.5.6", False, "plug")
+    app.set_connected(None)                                    # not answering: grey Wi-Fi with a red X
+    assert badge(app) == (None, True, "wifi") and arcs() == {theme.MUTED}
+    app.set_connected(False)                                   # still looking: grey, no X
+    assert badge(app) == (None, False, "wifi")
 
 
 # ---------------------------------------------------------------- run
@@ -55,7 +69,7 @@ def test_run_no_device_systemexit(app, dlg, monkeypatch):
     app.run("lbl", lambda d: None, lambda r: pytest.fail("done"))
     pump(app)
     assert "não encontrado" in app.status.cget("text") and app.status.cget("fg") == theme.DANGER
-    assert "não encontrado" in app.pill.cget("text") and dlg.errors and not app.busy
+    assert badge(app)[1] and dlg.errors and not app.busy
 
 
 def test_run_explains_the_errors_a_user_can_fix(app, dlg, monkeypatch):
@@ -95,7 +109,7 @@ def test_run_quiet_error_only_marks_the_pill(app, dlg, monkeypatch):
     app.set_status("marker")
     app.run("", lambda d: None, lambda r: pytest.fail("done"), quiet=True)
     pump(app)
-    assert not dlg.errors and app.status.cget("text") == "marker" and "não encontrado" in app.pill.cget("text")
+    assert not dlg.errors and app.status.cget("text") == "marker" and badge(app)[1]
 
 
 # ---------------------------------------------------------------- read_device
@@ -114,7 +128,7 @@ def test_read_device_fills_the_widgets_from_the_fixture(app, fake):
     assert v["light"]["brightness"].get() == 0 and v["light"]["speed"].get() == 10     # animation 4
     assert app.profile_btns[0].text == "Perfil 1  ●" and app.profile_btns[1].text == "Perfil 2"
     assert app.home_sub.cget("text") == "Perfil ativo no controle: 1"
-    assert "Cyclone 2 (cabo, ADC)" in app.pill.cget("text") and "firmware 3.5.6" in app.pill.cget("text")
+    assert badge(app) == ("3.5.6", False, "plug") and app.conn[:2] == (0x1053, "3.5.6")
     assert "/dev/hidraw-fake" in app.info_label.cget("text") and "Firmware: 3.5.6" in app.info_label.cget("text")
     assert "Bateria" not in app.info_label.cget("text") and "dongle" not in app.info_label.cget("text")
     assert "salvas automaticamente" in app.status.cget("text") and app._save_job is None
@@ -128,12 +142,12 @@ def test_read_device_other_active_profile(mk, fake):
 def test_read_device_battery_dongle_and_unknown_pid(mk, fake, monkeypatch):
     fake.pid = 0x9999
     a = mk(read=False)
-    monkeypatch.setattr(device.Device, "state", lambda self, timeout=0.5: {"battery": 64})
+    monkeypatch.setattr(device.Device, "state", lambda self, timeout=0.5: {"battery": 64, "charging": 1})
     monkeypatch.setattr(device.Device, "firmware", lambda self: ("1.2.3", "4.5.6"))
     a.read_device()
     pump(a)
     assert "Bateria: 64%" in a.info_label.cget("text") and "dongle 4.5.6" in a.info_label.cget("text")
-    assert hex(0x9999) in a.pill.cget("text") and a.conn_text.endswith("firmware 1.2.3")
+    assert a.conn == (0x9999, "1.2.3", 64, 1) and badge(a) == ("1.2.3", False, "plug")
 
 
 def test_read_device_waits_for_the_state_report(mk, fake, monkeypatch):
@@ -151,7 +165,7 @@ def test_read_device_without_controller(app, dlg, monkeypatch):
     doc = app.doc
     app.read_device()
     pump(app)
-    assert dlg.errors and "não encontrado" in app.pill.cget("text") and app.doc is doc
+    assert dlg.errors and badge(app)[1] and app.doc is doc
 
 
 # ---------------------------------------------------------------- profile switching
@@ -314,7 +328,7 @@ def test_autosave_verify_failure(app, fake, dlg, fast):
     app.v["name"].set("Falha")
     pump(app, lambda: bool(dlg.errors) and not app.busy)
     assert "verificação falhou" in app.status.cget("text") and app.status.cget("fg") == theme.DANGER
-    assert app.base is base and "não encontrado" in app.pill.cget("text")
+    assert app.base is base and badge(app)[1]
 
 
 # ---------------------------------------------------------------- poll
@@ -349,20 +363,22 @@ def test_poll_skipped_without_doc_busy_or_pending_save(app, fake):
 
 
 def test_poll_error_is_silent_but_marks_disconnected_then_recovers(app, dlg, monkeypatch):
-    conn = app.conn_text
+    conn = app.conn
     with monkeypatch.context() as mp:
         mp.setattr(discovery, "find_devices", lambda: iter([]))
         app.poll()
         pump(app)
-    assert not dlg.errors and "não encontrado" in app.pill.cget("text")
-    app.poll()                                                  # the controller is back: the pill recovers
+    assert not dlg.errors and badge(app)[1]
+    app.pad = {"battery": 42, "charging": 1}                   # the state stream brings a newer battery level
+    app.poll()                                                  # the controller is back: the badge recovers
     pump(app)
-    assert app.pill.cget("text") == f"●  {conn}"
-    app.conn_text = None                                        # never read successfully: nothing to restore
+    assert app.conn == conn[:2] + (42, 1) and badge(app) == (conn[1], False, "plug")
+    app.pad = {}
+    app.conn = None                                             # never read successfully: nothing to restore
     app.set_connected(None)
     app.poll()
     pump(app)
-    assert "não encontrado" in app.pill.cget("text")
+    assert badge(app)[1]
 
 
 # ---------------------------------------------------------------- rumble
