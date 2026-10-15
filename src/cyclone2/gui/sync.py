@@ -10,6 +10,17 @@ from .i18n import _
 from .theme import ACCENT, DANGER, MUTED
 
 
+def explain(error):
+    """Clear, translated text for the errors a user can fix; anything else keeps its own message."""
+    if isinstance(error, device.NotFound):
+        return _("Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.")
+    if isinstance(error, device.NoAnswer):
+        return _("O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.")
+    if isinstance(error, device.PermissionDenied):
+        return _("Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).").format(error.path)
+    return str(error) or error.__class__.__name__
+
+
 class DeviceSync:
     # ------------------------------------------------------------ status line / connection pill
     def set_status(self, text, error=False):
@@ -37,7 +48,7 @@ class DeviceSync:
                 res = job(dev)
                 cb = lambda: done(res)
             except BaseException as e:     # Device uses sys.exit for user-facing errors
-                msg = str(e) or e.__class__.__name__
+                msg = explain(e)
                 if quiet:
                     cb = lambda: self.set_connected(None)
                 else:

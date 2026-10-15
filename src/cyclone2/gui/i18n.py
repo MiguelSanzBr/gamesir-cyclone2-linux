@@ -87,7 +87,13 @@ EN = {
     "Idioma da interface": "Interface language",
     # status line, connection pill, dialogs
     "Padrões do app restaurados neste perfil.": "App defaults restored for this profile.",
-    "controle não encontrado": "controller not found", "Erro": "Error",
+    "controle não encontrado": "controller not found",
+    "Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.":
+        "GameSir Cyclone 2 not found. Plug it in with the cable or the 2.4G dongle.",
+    "O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.":
+        "The controller did not answer. Check that it is on and connected (cable or 2.4G dongle) and try again.",
+    "Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).":
+        "No permission to access the controller ({}). Install the udev rule (see the README).", "Erro": "Error",
     "Conectado · {} · firmware {}": "Connected · {} · firmware {}", "Bateria: {}%": "Battery: {}%",
     "Dispositivo: {}\nFirmware: {}": "Device: {}\nFirmware: {}",
     "Configuração lida do controle. As mudanças são salvas automaticamente.":
@@ -210,6 +216,9 @@ FR = {
     'Idioma da interface': "Langue de l'interface",
     'Padrões do app restaurados neste perfil.': "Valeurs par défaut de l'appli restaurées sur ce profil.",
     'controle não encontrado': 'manette introuvable',
+    'Controle GameSir Cyclone 2 não encontrado. Conecte-o com o cabo ou o dongle 2.4G.': 'GameSir Cyclone 2 introuvable. Branchez-la avec le câble ou le dongle 2,4 G.',
+    'O controle não respondeu. Verifique se ele está ligado e conectado (cabo ou dongle 2.4G) e tente de novo.': "La manette n'a pas répondu. Vérifiez qu'elle est allumée et connectée (câble ou dongle 2,4 G), puis réessayez.",
+    'Sem permissão para acessar o controle ({}). Instale a regra udev (veja o README).': "Pas d'autorisation pour accéder à la manette ({}). Installez la règle udev (voir le README).",
     'Erro': 'Erreur',
     'Conectado · {} · firmware {}': 'Connecté · {} · firmware {}',
     'Bateria: {}%': 'Batterie : {} %',

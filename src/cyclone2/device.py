@@ -1,7 +1,6 @@
 """Transport to the controller over ``/dev/hidraw``: profiles, lighting, active profile, firmware, rumble, state."""
 import os
 import select
-import sys
 import time
 
 from . import discovery
@@ -9,6 +8,22 @@ from . import protocol as p
 
 TRIES = 10               # the app gives up on a message after 10 sends
 RESEND = 0.2             # ... resending every 200 ms while unanswered
+
+
+class NotFound(SystemExit):
+    """No controller is connected."""
+
+
+class PermissionDenied(SystemExit):
+    """The hidraw node cannot be opened (the udev rule is missing)."""
+
+    def __init__(self, path):
+        super().__init__(f"permission denied on {path}: install udev/70-gamesir-cyclone2.rules (see README)")
+        self.path = path
+
+
+class NoAnswer(IOError):
+    """The controller did not answer a command (asleep, busy or disconnected)."""
 
 
 class Device:
@@ -22,12 +37,12 @@ class Device:
         if path:
             devs = [d for d in devs if d[0] == path] or [(path, 0)]
         if not devs:
-            sys.exit("GameSir Cyclone 2 not found (plug it in with the cable or the 2.4G dongle)")
+            raise NotFound("GameSir Cyclone 2 not found (plug it in with the cable or the 2.4G dongle)")
         self.path, self.pid = devs[0]
         try:
             self.fd = os.open(self.path, os.O_RDWR | os.O_NONBLOCK)
         except PermissionError:
-            sys.exit(f"permission denied on {self.path}: install udev/70-gamesir-cyclone2.rules (see README)")
+            raise PermissionDenied(self.path)
         self.heartbeat()
 
     def close(self):
@@ -57,7 +72,7 @@ class Device:
                     break
                 if p.kind(r) == want and match(r):
                     return r
-        raise IOError(f"no answer to command {report[1]} (controller busy or disconnected)")
+        raise NoAnswer(f"no answer to command {report[1]} (controller busy or disconnected)")
 
     def heartbeat(self):
         """The app sends this every second while its window has focus (keeps the config session alive)."""
