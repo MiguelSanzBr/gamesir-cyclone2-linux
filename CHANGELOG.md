@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## 0.1.0-beta.4 — 2026-10-20
+
+* `c2gui web` opens the browser version (WebHID). Its source moved into `web/` of this repository and it is served at <https://miguelsanzbr.github.io/gamesir-cyclone2-linux/>.
+* README: install the Flatpak from the signed repository on GitHub Pages.
+
 ## 0.1.0-beta.3 — 2026-10-15
 
 * Flatpak: AppStream metadata, desktop entry and icon under the app ID `io.github.miguelsanzbr.gamesir-cyclone2-linux` (`packaging/flatpak/`), ready for a
