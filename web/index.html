@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" data-theme="light" content="#f2f2f3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" data-theme="dark" content="#121212" media="(prefers-color-scheme: dark)" />
+    <title>GameSir Cyclone 2 no navegador</title>
+    <script>
+      // tema escolhido no botão do topo, aplicado antes do React pra página não piscar
+      try {
+        var t = localStorage.getItem('theme')
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t
+          // barra do navegador no celular vai junto: a cor do tema escolhido vale sempre, a outra nunca
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            m.setAttribute('media', m.dataset.theme === t ? 'all' : 'not all')
+          })
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

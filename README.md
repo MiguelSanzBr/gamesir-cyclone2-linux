@@ -36,6 +36,10 @@ to the controller directly over `/dev/hidraw`. You get a command-line tool, `c2c
 Tested with a black Cyclone 2, firmware 3.5.6, over USB (`3537:1053`). The other config modes (`3537:101d`
 wired, `3537:102a`/`3537:100b` 2.4G) use the same protocol in the official app but have not been tested yet.
 
+## Web version
+
+The same configurator also runs in the browser, with nothing to install: <https://miguelsanzbr.github.io/gamesir-cyclone2-linux/> (Chrome, Edge or another Chromium browser, because it talks to the device through WebHID). From the terminal, `c2gui web` opens it. Its source is in [`web/`](web/) (React + TypeScript); its tests run in `.github/workflows/web.yml` and the deploy in `.github/workflows/pages.yml`.
+
 ## Install
 
 ### Debian / Ubuntu (.deb) — recommended

@@ -1,0 +1,7 @@
+# Builda e serve o site com nginx em http://localhost:8089/gamesir-cyclone2-linux/
+# localhost conta como contexto seguro, então o WebHID funciona.
+services:
+  web:
+    build: .
+    ports:
+      - "8089:80"

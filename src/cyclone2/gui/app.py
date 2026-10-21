@@ -1,7 +1,9 @@
 """The ``c2gui`` main window: state, layout skeleton and the mixins that do the work."""
 import json
 import os
+import sys
 import threading
+import webbrowser
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import ttk
@@ -198,7 +200,16 @@ class App(Pages, ControllerView, Editor, DeviceSync, PadInput, tk.Tk):
             self.after_idle(self.destroy)       # let the chip traces of this change finish first
 
 
-def main():
+WEB_URL = "https://miguelsanzbr.github.io/gamesir-cyclone2-linux/"
+
+
+def main(argv=None):
+    args = sys.argv[1:] if argv is None else argv
+    if args[:1] == ["web"]:
+        # the web version (WebHID) is served by this repository's GitHub Pages
+        print(WEB_URL)
+        webbrowser.open(WEB_URL)
+        return
     while True:
         app = App()
         app.mainloop()

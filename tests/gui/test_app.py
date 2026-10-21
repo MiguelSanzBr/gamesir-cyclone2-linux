@@ -116,3 +116,12 @@ def test_main_runs_mainloop(monkeypatch):
     monkeypatch.setattr(app_mod, "App", Fake)
     app_mod.main()
     assert calls == ["loop"]
+
+
+def test_main_web_opens_the_browser_instead_of_the_gui(monkeypatch, capsys):
+    opened = []
+    monkeypatch.setattr(app_mod.webbrowser, "open", opened.append)
+    monkeypatch.setattr(app_mod, "App", lambda: (_ for _ in ()).throw(AssertionError("GUI started")))
+    app_mod.main(["web"])
+    assert opened == [app_mod.WEB_URL]
+    assert app_mod.WEB_URL in capsys.readouterr().out
